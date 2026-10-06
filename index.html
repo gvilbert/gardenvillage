@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Casa Granero v13, Garden Village</title>
+<title>Casa Granero v16, Garden Village</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
@@ -22,6 +22,15 @@ header p{margin:6px 0 0;color:var(--mute);font-size:16px;max-width:66ch}
 .ctrls button[aria-pressed=true]{background:var(--olive);color:var(--paper)}
 .ctrls button:focus-visible{outline:2px solid var(--ochre);outline-offset:2px}
 .hint{position:absolute;right:16px;bottom:18px;font-size:13px;color:var(--mute)}
+.sunbox{position:absolute;right:16px;top:16px;width:300px;background:rgba(247,247,242,.94);border:1px solid var(--line);padding:12px 14px;font-size:13px;color:var(--ink)}
+.sunbox .row{display:flex;gap:8px;align-items:center;margin-bottom:8px}
+.sunbox select,.sunbox button{font:inherit;font-size:13px;padding:5px 8px;border:1px solid var(--olive);background:var(--paper);color:var(--olive);cursor:pointer}
+.sunbox button[aria-pressed=true]{background:var(--olive);color:var(--paper)}
+.sunbox input[type=range]{width:100%;accent-color:var(--ochre)}
+.sunbox .read{display:flex;justify-content:space-between;color:var(--mute);font-variant-numeric:tabular-nums}
+.sunbox .read b{color:var(--ink);font-weight:500;font-size:18px}
+.sunbox .ticks{display:flex;justify-content:space-between;font-size:10.5px;color:var(--mute);margin-top:-2px}
+@media (max-width:700px){.sunbox{left:12px;right:12px;width:auto;top:12px}}
 #err{position:absolute;inset:0;display:none;align-items:center;justify-content:center;text-align:center;padding:24px;color:var(--mute)}
 main{max-width:1240px;margin:0 auto;padding:28px 32px 48px;display:grid;grid-template-columns:1.5fr 1fr;gap:32px}
 h2{font-weight:400;font-size:20px;margin:0 0 10px;color:var(--olive)}
@@ -40,8 +49,8 @@ tr.sum td{font-weight:500;border-bottom:none;padding-top:10px}
 <body>
 <header>
   <div>
-    <h1>Casa Granero v13</h1>
-    <p>Basada en la v10. La zona social se amplía 1.40 m por lado, a 10.00 m exteriores. Las corredizas de las recámaras pasan a los extremos poniente y oriente. La fachada se reacomoda con el mismo vidrio y simetría completa respecto a la cumbrera.</p>
+    <h1>Casa Granero v16</h1>
+    <p>La v13 con estudio solar: el sol real de Amealco (latitud 20.2° N, hora del centro de México), hora por hora, en cualquier fecha. Con el control de arriba a la derecha eliges el día y la hora, o reproduces el día completo, y ves la luz y las sombras sobre la casa, las terrazas y el jardín. La línea dorada es la trayectoria del sol ese día y cada punto marca una hora.</p>
   </div>
   <div class="facts">
     <div><b>147 m²</b>un nivel</div>
@@ -60,7 +69,21 @@ tr.sum td{font-weight:500;border-bottom:none;padding-top:10px}
     <button data-view="street" aria-pressed="false">Desde la calle</button>
     <button data-view="top" aria-pressed="false">Desde arriba</button>
     <button id="mezzBtn" aria-pressed="true">Mezzanine: sí</button>
-    <button id="roofBtn" aria-pressed="false">Quitar lámina del techo</button>
+    <button id="roofBtn" aria-pressed="false">Quitar lámina (sombra real)</button>
+  </div>
+  <div class="sunbox" role="group" aria-label="Recorrido del sol">
+    <div class="row"><b style="font-weight:500;color:var(--olive)">Sol</b>
+      <select id="sunDate" aria-label="Fecha">
+        <option value="today">Hoy</option>
+        <option value="355">21 dic · invierno</option>
+        <option value="80">21 mar · equinoccio</option>
+        <option value="172">21 jun · verano</option>
+        <option value="266">23 sep · equinoccio</option>
+      </select>
+      <button id="sunPlay" aria-pressed="false">▶ Día completo</button></div>
+    <input id="sunHour" type="range" min="5.5" max="20" step="0.25" value="10" aria-label="Hora del día">
+    <div class="ticks"><span>6</span><span>8</span><span>10</span><span>12</span><span>14</span><span>16</span><span>18</span><span>20</span></div>
+    <div class="read" style="margin-top:6px"><b id="sunClock">10:00</b><span id="sunInfo"></span></div>
   </div>
   <div class="hint">Arrastra para girar, rueda para acercar</div>
 </section>
@@ -69,9 +92,10 @@ tr.sum td{font-weight:500;border-bottom:none;padding-top:10px}
 <main>
   <div class="card">
     <h2>Planta</h2>
-    <svg viewBox="0 0 670 680" width="100%" role="img" aria-label="Planta"><defs><pattern id="stoneM" width="2.4" height="2" patternUnits="userSpaceOnUse"><g transform="scale(0.05)"><rect width="48" height="40" fill="#D3CCBC"/><g fill="none" stroke="#B3AB98" stroke-width="1.2"><path d="M0 14 L18 12 L22 0"/><path d="M18 12 L30 22 L48 18"/><path d="M30 22 L26 40"/><path d="M0 30 L14 28 L18 12"/><path d="M14 28 L10 40"/><path d="M38 0 L36 10 L48 8"/><path d="M36 10 L30 22"/><path d="M26 40 L40 30 L48 34"/></g></g></pattern></defs><g transform="translate(46,92) scale(34)"><rect x="0.200" y="5.600" width="2.600" height="6.800" fill="url(#stoneM)" />
+    <svg viewBox="-20 0 690 760" width="100%" role="img" aria-label="Planta"><defs><pattern id="stoneM" width="2.4" height="2" patternUnits="userSpaceOnUse"><g transform="scale(0.05)"><rect width="48" height="40" fill="#D3CCBC"/><g fill="none" stroke="#B3AB98" stroke-width="1.2"><path d="M0 14 L18 12 L22 0"/><path d="M18 12 L30 22 L48 18"/><path d="M30 22 L26 40"/><path d="M0 30 L14 28 L18 12"/><path d="M14 28 L10 40"/><path d="M38 0 L36 10 L48 8"/><path d="M36 10 L30 22"/><path d="M26 40 L40 30 L48 34"/></g></g></pattern></defs><g transform="translate(46,92) scale(34)"><rect x="0.200" y="5.600" width="2.600" height="6.800" fill="url(#stoneM)" />
 <rect x="12.800" y="5.600" width="2.600" height="6.800" fill="url(#stoneM)" />
 <rect x="0.200" y="12.400" width="15.200" height="2.400" fill="url(#stoneM)" />
+<rect x="2.800" y="14.800" width="10.000" height="2.600" fill="url(#stoneM)" />
 <rect x="4.400" y="0.000" width="6.800" height="1.200" fill="url(#stoneM)" />
 <line x1="-0.600" y1="5.850" x2="2.800" y2="5.850" stroke="#A47E52" stroke-width=".05" stroke-opacity=".55"/>
 <line x1="-0.600" y1="6.250" x2="2.800" y2="6.250" stroke="#A47E52" stroke-width=".05" stroke-opacity=".55"/>
@@ -183,6 +207,17 @@ tr.sum td{font-weight:500;border-bottom:none;padding-top:10px}
 <rect x="7.350" y="5.950" width="0.900" height="0.800" fill="none" stroke="#2E2A26" stroke-width=".03"/>
 <circle cx="7.6" cy="6.2" r=".14" fill="none" stroke="#2E2A26" stroke-width=".03"/><circle cx="8.0" cy="6.5" r=".14" fill="none" stroke="#2E2A26" stroke-width=".03"/>
 <rect x="7.400" y="6.900" width="0.800" height="0.400" fill="#8FB0BB" />
+<rect x="4.300" y="14.900" width="2.200" height="1.000" fill="#B89468" stroke="#8C8676" stroke-width=".03"/>
+<rect x="8.900" y="14.900" width="2.400" height="0.800" fill="#D9D2C2" stroke="#8C8676" stroke-width=".03"/>
+<rect x="9.500" y="16.000" width="1.200" height="0.500" fill="#B89468" stroke="#8C8676" stroke-width=".03"/>
+<rect x="8.600" y="16.600" width="0.700" height="0.700" fill="#D9D2C2" stroke="#8C8676" stroke-width=".03"/>
+<rect x="10.900" y="16.600" width="0.700" height="0.700" fill="#D9D2C2" stroke="#8C8676" stroke-width=".03"/>
+<rect x="4.530" y="14.330" width=".44" height=".44" fill="#FBFBF8" stroke="#7D7E72" stroke-width=".03"/>
+<rect x="4.530" y="16.030" width=".44" height=".44" fill="#FBFBF8" stroke="#7D7E72" stroke-width=".03"/>
+<rect x="5.180" y="14.330" width=".44" height=".44" fill="#FBFBF8" stroke="#7D7E72" stroke-width=".03"/>
+<rect x="5.180" y="16.030" width=".44" height=".44" fill="#FBFBF8" stroke="#7D7E72" stroke-width=".03"/>
+<rect x="5.830" y="14.330" width=".44" height=".44" fill="#FBFBF8" stroke="#7D7E72" stroke-width=".03"/>
+<rect x="5.830" y="16.030" width=".44" height=".44" fill="#FBFBF8" stroke="#7D7E72" stroke-width=".03"/>
 <circle cx="6.700" cy="7.750" r=".2" fill="#FBFBF8" stroke="#7D7E72" stroke-width=".03"/>
 <circle cx="6.700" cy="8.400" r=".2" fill="#FBFBF8" stroke="#7D7E72" stroke-width=".03"/>
 <circle cx="6.700" cy="9.050" r=".2" fill="#FBFBF8" stroke="#7D7E72" stroke-width=".03"/>
@@ -261,9 +296,9 @@ tr.sum td{font-weight:500;border-bottom:none;padding-top:10px}
 <line x1="7.8" y1="-0.1" x2="7.8" y2="13.0" stroke="#5D5A1E" stroke-width=".05" stroke-dasharray=".35 .12 .06 .12"/>
 <rect x="-0.6" y="-0.4" width="16.8" height="13.4" fill="none" stroke="#7A7566" stroke-width=".04" stroke-dasharray=".25 .18"/>
 <text x="2.300" y="1.450" font-size="0.3" fill="#2A2B22" text-anchor="middle" font-weight="400">Baño abierto</text>
-<text x="2.300" y="1.830" font-size="0.24" fill="#6B6C5E" text-anchor="middle" font-weight="400">8 m²</text>
+<text x="2.300" y="1.830" font-size="0.24" fill="#6B6C5E" text-anchor="middle" font-weight="400">4.00 × 2.00</text>
 <text x="13.300" y="1.450" font-size="0.3" fill="#2A2B22" text-anchor="middle" font-weight="400">Baño abierto</text>
-<text x="13.300" y="1.830" font-size="0.24" fill="#6B6C5E" text-anchor="middle" font-weight="400">8 m²</text>
+<text x="13.300" y="1.830" font-size="0.24" fill="#6B6C5E" text-anchor="middle" font-weight="400">4.00 × 2.00</text>
 <text x="0.800" y="1.000" font-size="0.22" fill="#2A2B22" text-anchor="middle" font-weight="400">regadera</text>
 <text x="14.800" y="1.000" font-size="0.22" fill="#2A2B22" text-anchor="middle" font-weight="400">regadera</text>
 <text x="3.650" y="0.950" font-size="0.24" fill="#2A2B22" text-anchor="middle" font-weight="400">WC</text>
@@ -271,35 +306,53 @@ tr.sum td{font-weight:500;border-bottom:none;padding-top:10px}
 <text x="2.300" y="0.550" font-size="0.2" fill="#2A2B22" text-anchor="middle" font-weight="400">lavabos</text>
 <text x="13.300" y="0.550" font-size="0.2" fill="#2A2B22" text-anchor="middle" font-weight="400">lavabos</text>
 <text x="5.600" y="2.600" font-size="0.26" fill="#2A2B22" text-anchor="middle" font-weight="400">Despensa</text>
-<text x="5.600" y="2.980" font-size="0.24" fill="#6B6C5E" text-anchor="middle" font-weight="400">lavandería 6.2 m²</text>
-<text x="7.800" y="3.000" font-size="0.28" fill="#2A2B22" text-anchor="middle" font-weight="400">Entrada</text>
+<text x="5.600" y="2.980" font-size="0.24" fill="#6B6C5E" text-anchor="middle" font-weight="400">2.40 × 2.60 · 6.2 m²</text>
+<text x="7.800" y="3.000" font-size="0.26" fill="#2A2B22" text-anchor="middle" font-weight="400">Entrada</text>
+<text x="7.800" y="3.380" font-size="0.24" fill="#6B6C5E" text-anchor="middle" font-weight="400">1.80 × 2.60</text>
 <text x="10.000" y="2.600" font-size="0.26" fill="#2A2B22" text-anchor="middle" font-weight="400">Baño visitas</text>
-<text x="10.000" y="2.980" font-size="0.24" fill="#6B6C5E" text-anchor="middle" font-weight="400">6.2 m², regadera</text>
-<text x="7.800" y="0.750" font-size="0.26" fill="#2A2B22" text-anchor="middle" font-weight="400">Porche 1.2 m</text>
-<text x="2.000" y="5.000" font-size="0.32" fill="#2A2B22" text-anchor="middle" font-weight="400">Recámara</text>
-<text x="2.000" y="5.380" font-size="0.24" fill="#6B6C5E" text-anchor="middle" font-weight="400">12.2 m²</text>
-<text x="13.600" y="5.000" font-size="0.32" fill="#2A2B22" text-anchor="middle" font-weight="400">Recámara 2</text>
-<text x="13.600" y="5.380" font-size="0.24" fill="#6B6C5E" text-anchor="middle" font-weight="400">12.2 m²</text>
+<text x="10.000" y="2.980" font-size="0.24" fill="#6B6C5E" text-anchor="middle" font-weight="400">2.40 × 2.60 · 6.2 m²</text>
+<text x="7.800" y="0.650" font-size="0.26" fill="#2A2B22" text-anchor="middle" font-weight="400">Porche</text>
+<text x="7.800" y="1.030" font-size="0.24" fill="#6B6C5E" text-anchor="middle" font-weight="400">6.80 × 1.20</text>
+<text x="2.000" y="4.850" font-size="0.32" fill="#2A2B22" text-anchor="middle" font-weight="400">Recámara</text>
+<text x="2.000" y="5.230" font-size="0.24" fill="#6B6C5E" text-anchor="middle" font-weight="400">4.00 × 3.05 · 12.2 m²</text>
+<text x="13.600" y="4.850" font-size="0.32" fill="#2A2B22" text-anchor="middle" font-weight="400">Recámara 2</text>
+<text x="13.600" y="5.230" font-size="0.24" fill="#6B6C5E" text-anchor="middle" font-weight="400">4.00 × 3.05 · 12.2 m²</text>
 <text x="3.900" y="3.200" font-size="0.2" fill="#2A2B22" text-anchor="middle" font-weight="400">ropero</text>
 <text x="11.700" y="3.200" font-size="0.2" fill="#2A2B22" text-anchor="middle" font-weight="400">ropero</text>
 <text x="9.600" y="5.450" font-size="0.3" fill="#2A2B22" text-anchor="middle" font-weight="400">Cocina</text>
-<text x="7.800" y="11.950" font-size="0.36" fill="#2A2B22" text-anchor="middle" font-weight="500">Sala</text>
-<text x="7.800" y="13.700" font-size="0.32" fill="#2A2B22" text-anchor="middle" font-weight="400">Una sola terraza en U · 72 m²</text>
-<text x="2.200" y="6.750" font-size="0.26" fill="#2A2B22" text-anchor="middle" font-weight="400">terraza</text>
-<text x="13.400" y="6.750" font-size="0.26" fill="#2A2B22" text-anchor="middle" font-weight="400">terraza</text>
+<text x="7.800" y="11.600" font-size="0.34" fill="#2A2B22" text-anchor="middle" font-weight="500">Sala</text>
+<text x="7.800" y="11.980" font-size="0.24" fill="#6B6C5E" text-anchor="middle" font-weight="400">zona social 9.60 × 6.40 · 72 m²</text>
+<text x="7.800" y="13.650" font-size="0.32" fill="#2A2B22" text-anchor="middle" font-weight="400">Terraza sur</text>
+<text x="7.800" y="14.030" font-size="0.24" fill="#6B6C5E" text-anchor="middle" font-weight="400">15.20 × 2.40 + 10.00 × 2.60</text>
+<text x="5.400" y="17.000" font-size="0.22" fill="#2A2B22" text-anchor="middle" font-weight="400">comedor 6 personas</text>
+<text x="10.100" y="17.150" font-size="0.22" fill="#2A2B22" text-anchor="middle" font-weight="400">sala exterior</text>
+<text x="1.500" y="6.400" font-size="0.26" fill="#2A2B22" text-anchor="middle" font-weight="400">terraza</text>
+<text x="1.500" y="6.780" font-size="0.24" fill="#6B6C5E" text-anchor="middle" font-weight="400">2.60 × 6.80</text>
+<text x="14.100" y="6.400" font-size="0.26" fill="#2A2B22" text-anchor="middle" font-weight="400">terraza</text>
+<text x="14.100" y="6.780" font-size="0.24" fill="#6B6C5E" text-anchor="middle" font-weight="400">2.60 × 6.80</text>
+<text x="7.800" y="5.620" font-size="0.2" fill="#2A2B22" text-anchor="middle" font-weight="400">isla 4.00 × 1.30</text>
 <text x="7.800" y="-0.600" font-size="0.26" fill="#6B6C5E" text-anchor="middle" font-weight="400">un solo techo a dos aguas, 23°</text>
 <text x="2.000" y="12.750" font-size="0.27" fill="#7A5F3E" text-anchor="middle" font-weight="400">pérgola</text>
 <text x="13.600" y="12.750" font-size="0.27" fill="#7A5F3E" text-anchor="middle" font-weight="400">pérgola</text>
 <text x="9.500" y="4.550" font-size="0.2" fill="#2A2B22" text-anchor="middle" font-weight="400">refri + horno</text>
 <text x="5.150" y="4.820" font-size="0.2" fill="#5D5A1E" text-anchor="middle" font-weight="400">helicoidal</text>
-<text x="1.500" y="9.350" font-size="0.22" fill="#8A7420" text-anchor="middle" font-weight="400">ventana de barra</text>
-<text x="14.100" y="9.350" font-size="0.22" fill="#8A7420" text-anchor="middle" font-weight="400">ventana de barra</text>
-<text x="1.500" y="11.300" font-size="0.22" fill="#8A7420" text-anchor="middle" font-weight="400">corrediza sala</text>
-<text x="14.100" y="11.300" font-size="0.22" fill="#8A7420" text-anchor="middle" font-weight="400">corrediza sala</text>
-<g stroke="#6B6C5E" stroke-width=".03"><line x1="0" y1="15.5" x2="15.6" y2="15.5"/><line x1="0" y1="15.350000000000001" x2="0" y2="15.65"/><line x1="2.8" y1="15.350000000000001" x2="2.8" y2="15.65"/><line x1="12.8" y1="15.350000000000001" x2="12.8" y2="15.65"/><line x1="15.6" y1="15.350000000000001" x2="15.6" y2="15.65"/></g>
-<text x="1.400" y="15.400" font-size="0.26" fill="#6B6C5E" text-anchor="middle" font-weight="400">2.80</text>
-<text x="7.800" y="15.400" font-size="0.26" fill="#6B6C5E" text-anchor="middle" font-weight="400">10.00 zona social</text>
-<text x="14.200" y="15.400" font-size="0.26" fill="#6B6C5E" text-anchor="middle" font-weight="400">2.80</text>
+<text x="1.500" y="9.350" font-size="0.22" fill="#8A7420" text-anchor="middle" font-weight="400">ventana de barra 1.80</text>
+<text x="14.100" y="9.350" font-size="0.22" fill="#8A7420" text-anchor="middle" font-weight="400">ventana de barra 1.80</text>
+<text x="1.500" y="11.300" font-size="0.22" fill="#8A7420" text-anchor="middle" font-weight="400">corrediza 2.40</text>
+<text x="14.100" y="11.300" font-size="0.22" fill="#8A7420" text-anchor="middle" font-weight="400">corrediza 2.40</text>
+<text x="1.500" y="5.950" font-size="0.2" fill="#8A7420" text-anchor="middle" font-weight="400">corrediza 2.40</text>
+<text x="14.100" y="5.950" font-size="0.2" fill="#8A7420" text-anchor="middle" font-weight="400">corrediza 2.40</text>
+<text x="7.800" y="12.750" font-size="0.2" fill="#8A7420" text-anchor="middle" font-weight="400">ventanal 5.20</text>
+<g stroke="#6B6C5E" stroke-width=".03"><line x1="0" y1="18.1" x2="15.6" y2="18.1"/><line x1="0" y1="17.950000000000003" x2="0" y2="18.25"/><line x1="2.8" y1="17.950000000000003" x2="2.8" y2="18.25"/><line x1="12.8" y1="17.950000000000003" x2="12.8" y2="18.25"/><line x1="15.6" y1="17.950000000000003" x2="15.6" y2="18.25"/></g>
+<text x="1.400" y="17.980" font-size="0.26" fill="#6B6C5E" text-anchor="middle" font-weight="400">2.80</text>
+<text x="7.800" y="17.980" font-size="0.26" fill="#6B6C5E" text-anchor="middle" font-weight="400">10.00 zona social y terraza</text>
+<text x="14.200" y="17.980" font-size="0.26" fill="#6B6C5E" text-anchor="middle" font-weight="400">2.80</text>
+<g stroke="#6B6C5E" stroke-width=".03"><line x1="-1.5" y1="0" x2="-1.5" y2="17.4"/><line x1="-1.65" y1="0" x2="-1.35" y2="0"/><line x1="-1.65" y1="1.2" x2="-1.35" y2="1.2"/><line x1="-1.65" y1="5.6" x2="-1.35" y2="5.6"/><line x1="-1.65" y1="12.4" x2="-1.35" y2="12.4"/><line x1="-1.65" y1="14.8" x2="-1.35" y2="14.8"/><line x1="-1.65" y1="17.4" x2="-1.35" y2="17.4"/></g>
+<text x="-1.68" y="0.60" font-size=".26" fill="#6B6C5E" text-anchor="middle" transform="rotate(-90 -1.68 0.60)">1.20</text>
+<text x="-1.68" y="3.40" font-size=".26" fill="#6B6C5E" text-anchor="middle" transform="rotate(-90 -1.68 3.40)">4.40</text>
+<text x="-1.68" y="9.00" font-size=".26" fill="#6B6C5E" text-anchor="middle" transform="rotate(-90 -1.68 9.00)">6.80</text>
+<text x="-1.68" y="13.60" font-size=".26" fill="#6B6C5E" text-anchor="middle" transform="rotate(-90 -1.68 13.60)">2.40</text>
+<text x="-1.68" y="16.10" font-size=".26" fill="#6B6C5E" text-anchor="middle" transform="rotate(-90 -1.68 16.10)">2.60</text>
 <g fill="none" stroke="#B39B3C" stroke-width=".06"><path d="M6.4 8.1 L2.5 8.1 M2.8 7.9 L2.5 8.1 L2.8 8.3"/><path d="M9.2 8.1 L13.1 8.1 M12.8 7.9 L13.1 8.1 L12.8 8.3"/></g>
 <circle cx="5.15" cy="5.75" r="0.7" fill="#EFE6D6" stroke="#5D5A1E" stroke-width=".04"/><circle cx="5.15" cy="5.75" r=".06" fill="#2B2C2A"/>
 <line x1="5.15" y1="5.75" x2="5.756" y2="5.400" stroke="#A47E52" stroke-width=".03"/>
@@ -328,7 +381,7 @@ tr.sum td{font-weight:500;border-bottom:none;padding-top:10px}
       <li><b>Zona social ampliada.</b> Al sur de las suites, los muros laterales se recorren 1.40 m hacia afuera. La cocina-isla y la sala pasan de 6.80 a 9.60 m de ancho interior: unos 72 m² sociales, contra 54 m² antes. La isla sigue en el eje, la sala gana un sofá de 4.4 m con dos sillones, y la estufa de leña pasa a la esquina norponiente, junto a la escalera.</li>
       <li><b>Corredizas de las recámaras en los extremos.</b> El cancel de 2.40 m de cada suite se recorre al extremo poniente u oriente y sale directo a la terraza. La parte interior de su muro sur ahora colinda con la zona social y queda ciega.</li>
       <li><b>Mismo vidrio.</b> No se agrega ninguna pieza ni crece ninguna. Las ventanas de barra, las corredizas de sala y de recámaras y el hastial sur conservan sus medidas; solo cambian de lugar.</li>
-      <li><b>Terraza en U.</b> Las franjas laterales bajo la pérgola miden 2.60 m y la franja sur 15.20 × 2.40 m: unos 72 m² en total. La lavanda pasa por fuera de los postes de la pérgola.</li>
+      <li><b>Terraza sur para 6 personas.</b> Frente a la sala, la terraza pasa de 2.40 a 5.00 m de fondo en todo el ancho de la zona social (10.00 m), unos 50 m² solo ahí. Cabe un comedor exterior de 2.20 × 1.00 m con 6 sillas y una sala exterior con sofá y dos sillones. Con las franjas laterales bajo las pérgolas (2.60 × 6.80 m), toda la terraza suma unos 98 m².</li>
       <li><b>Suites de vacaciones.</b> Tienen ropero abierto de 1.5 m, baño abierto de 8 m² detrás del muro-cabecera, regadera de 1.2 × 1.8 m, lavabo doble y WC cerrado. La cama mira al sur.</li>
       <li><b>Porche y bodega.</b> El porche mide 1.2 m. Abajo están la despensa-lavandería y el baño de visitas, de 6.2 m² cada uno; arriba, la bodega junto al mezzanine opcional.</li>
     </ul>
@@ -476,6 +529,7 @@ tr.sum td{font-weight:500;border-bottom:none;padding-top:10px}
 <g transform="translate(57.5,118.0) scale(11)"><rect x="0.200" y="5.600" width="2.600" height="6.800" fill="url(#stoneM)" />
 <rect x="12.800" y="5.600" width="2.600" height="6.800" fill="url(#stoneM)" />
 <rect x="0.200" y="12.400" width="15.200" height="2.400" fill="url(#stoneM)" />
+<rect x="2.800" y="14.800" width="10.000" height="2.600" fill="url(#stoneM)" />
 <rect x="4.400" y="0.000" width="6.800" height="1.200" fill="url(#stoneM)" />
 <line x1="-0.600" y1="5.850" x2="2.800" y2="5.850" stroke="#A47E52" stroke-width=".05" stroke-opacity=".55"/>
 <line x1="-0.600" y1="6.250" x2="2.800" y2="6.250" stroke="#A47E52" stroke-width=".05" stroke-opacity=".55"/>
@@ -587,6 +641,17 @@ tr.sum td{font-weight:500;border-bottom:none;padding-top:10px}
 <rect x="7.350" y="5.950" width="0.900" height="0.800" fill="none" stroke="#2E2A26" stroke-width=".03"/>
 <circle cx="7.6" cy="6.2" r=".14" fill="none" stroke="#2E2A26" stroke-width=".03"/><circle cx="8.0" cy="6.5" r=".14" fill="none" stroke="#2E2A26" stroke-width=".03"/>
 <rect x="7.400" y="6.900" width="0.800" height="0.400" fill="#8FB0BB" />
+<rect x="4.300" y="14.900" width="2.200" height="1.000" fill="#B89468" stroke="#8C8676" stroke-width=".03"/>
+<rect x="8.900" y="14.900" width="2.400" height="0.800" fill="#D9D2C2" stroke="#8C8676" stroke-width=".03"/>
+<rect x="9.500" y="16.000" width="1.200" height="0.500" fill="#B89468" stroke="#8C8676" stroke-width=".03"/>
+<rect x="8.600" y="16.600" width="0.700" height="0.700" fill="#D9D2C2" stroke="#8C8676" stroke-width=".03"/>
+<rect x="10.900" y="16.600" width="0.700" height="0.700" fill="#D9D2C2" stroke="#8C8676" stroke-width=".03"/>
+<rect x="4.530" y="14.330" width=".44" height=".44" fill="#FBFBF8" stroke="#7D7E72" stroke-width=".03"/>
+<rect x="4.530" y="16.030" width=".44" height=".44" fill="#FBFBF8" stroke="#7D7E72" stroke-width=".03"/>
+<rect x="5.180" y="14.330" width=".44" height=".44" fill="#FBFBF8" stroke="#7D7E72" stroke-width=".03"/>
+<rect x="5.180" y="16.030" width=".44" height=".44" fill="#FBFBF8" stroke="#7D7E72" stroke-width=".03"/>
+<rect x="5.830" y="14.330" width=".44" height=".44" fill="#FBFBF8" stroke="#7D7E72" stroke-width=".03"/>
+<rect x="5.830" y="16.030" width=".44" height=".44" fill="#FBFBF8" stroke="#7D7E72" stroke-width=".03"/>
 <circle cx="6.700" cy="7.750" r=".2" fill="#FBFBF8" stroke="#7D7E72" stroke-width=".03"/>
 <circle cx="6.700" cy="8.400" r=".2" fill="#FBFBF8" stroke="#7D7E72" stroke-width=".03"/>
 <circle cx="6.700" cy="9.050" r=".2" fill="#FBFBF8" stroke="#7D7E72" stroke-width=".03"/>
@@ -665,9 +730,9 @@ tr.sum td{font-weight:500;border-bottom:none;padding-top:10px}
 <line x1="7.8" y1="-0.1" x2="7.8" y2="13.0" stroke="#5D5A1E" stroke-width=".05" stroke-dasharray=".35 .12 .06 .12"/>
 <rect x="-0.6" y="-0.4" width="16.8" height="13.4" fill="none" stroke="#7A7566" stroke-width=".04" stroke-dasharray=".25 .18"/>
 <text x="2.300" y="1.450" font-size="0.3" fill="#2A2B22" text-anchor="middle" font-weight="400">Baño abierto</text>
-<text x="2.300" y="1.830" font-size="0.24" fill="#6B6C5E" text-anchor="middle" font-weight="400">8 m²</text>
+<text x="2.300" y="1.830" font-size="0.24" fill="#6B6C5E" text-anchor="middle" font-weight="400">4.00 × 2.00</text>
 <text x="13.300" y="1.450" font-size="0.3" fill="#2A2B22" text-anchor="middle" font-weight="400">Baño abierto</text>
-<text x="13.300" y="1.830" font-size="0.24" fill="#6B6C5E" text-anchor="middle" font-weight="400">8 m²</text>
+<text x="13.300" y="1.830" font-size="0.24" fill="#6B6C5E" text-anchor="middle" font-weight="400">4.00 × 2.00</text>
 <text x="0.800" y="1.000" font-size="0.22" fill="#2A2B22" text-anchor="middle" font-weight="400">regadera</text>
 <text x="14.800" y="1.000" font-size="0.22" fill="#2A2B22" text-anchor="middle" font-weight="400">regadera</text>
 <text x="3.650" y="0.950" font-size="0.24" fill="#2A2B22" text-anchor="middle" font-weight="400">WC</text>
@@ -675,35 +740,53 @@ tr.sum td{font-weight:500;border-bottom:none;padding-top:10px}
 <text x="2.300" y="0.550" font-size="0.2" fill="#2A2B22" text-anchor="middle" font-weight="400">lavabos</text>
 <text x="13.300" y="0.550" font-size="0.2" fill="#2A2B22" text-anchor="middle" font-weight="400">lavabos</text>
 <text x="5.600" y="2.600" font-size="0.26" fill="#2A2B22" text-anchor="middle" font-weight="400">Despensa</text>
-<text x="5.600" y="2.980" font-size="0.24" fill="#6B6C5E" text-anchor="middle" font-weight="400">lavandería 6.2 m²</text>
-<text x="7.800" y="3.000" font-size="0.28" fill="#2A2B22" text-anchor="middle" font-weight="400">Entrada</text>
+<text x="5.600" y="2.980" font-size="0.24" fill="#6B6C5E" text-anchor="middle" font-weight="400">2.40 × 2.60 · 6.2 m²</text>
+<text x="7.800" y="3.000" font-size="0.26" fill="#2A2B22" text-anchor="middle" font-weight="400">Entrada</text>
+<text x="7.800" y="3.380" font-size="0.24" fill="#6B6C5E" text-anchor="middle" font-weight="400">1.80 × 2.60</text>
 <text x="10.000" y="2.600" font-size="0.26" fill="#2A2B22" text-anchor="middle" font-weight="400">Baño visitas</text>
-<text x="10.000" y="2.980" font-size="0.24" fill="#6B6C5E" text-anchor="middle" font-weight="400">6.2 m², regadera</text>
-<text x="7.800" y="0.750" font-size="0.26" fill="#2A2B22" text-anchor="middle" font-weight="400">Porche 1.2 m</text>
-<text x="2.000" y="5.000" font-size="0.32" fill="#2A2B22" text-anchor="middle" font-weight="400">Recámara</text>
-<text x="2.000" y="5.380" font-size="0.24" fill="#6B6C5E" text-anchor="middle" font-weight="400">12.2 m²</text>
-<text x="13.600" y="5.000" font-size="0.32" fill="#2A2B22" text-anchor="middle" font-weight="400">Recámara 2</text>
-<text x="13.600" y="5.380" font-size="0.24" fill="#6B6C5E" text-anchor="middle" font-weight="400">12.2 m²</text>
+<text x="10.000" y="2.980" font-size="0.24" fill="#6B6C5E" text-anchor="middle" font-weight="400">2.40 × 2.60 · 6.2 m²</text>
+<text x="7.800" y="0.650" font-size="0.26" fill="#2A2B22" text-anchor="middle" font-weight="400">Porche</text>
+<text x="7.800" y="1.030" font-size="0.24" fill="#6B6C5E" text-anchor="middle" font-weight="400">6.80 × 1.20</text>
+<text x="2.000" y="4.850" font-size="0.32" fill="#2A2B22" text-anchor="middle" font-weight="400">Recámara</text>
+<text x="2.000" y="5.230" font-size="0.24" fill="#6B6C5E" text-anchor="middle" font-weight="400">4.00 × 3.05 · 12.2 m²</text>
+<text x="13.600" y="4.850" font-size="0.32" fill="#2A2B22" text-anchor="middle" font-weight="400">Recámara 2</text>
+<text x="13.600" y="5.230" font-size="0.24" fill="#6B6C5E" text-anchor="middle" font-weight="400">4.00 × 3.05 · 12.2 m²</text>
 <text x="3.900" y="3.200" font-size="0.2" fill="#2A2B22" text-anchor="middle" font-weight="400">ropero</text>
 <text x="11.700" y="3.200" font-size="0.2" fill="#2A2B22" text-anchor="middle" font-weight="400">ropero</text>
 <text x="9.600" y="5.450" font-size="0.3" fill="#2A2B22" text-anchor="middle" font-weight="400">Cocina</text>
-<text x="7.800" y="11.950" font-size="0.36" fill="#2A2B22" text-anchor="middle" font-weight="500">Sala</text>
-<text x="7.800" y="13.700" font-size="0.32" fill="#2A2B22" text-anchor="middle" font-weight="400">Una sola terraza en U · 72 m²</text>
-<text x="2.200" y="6.750" font-size="0.26" fill="#2A2B22" text-anchor="middle" font-weight="400">terraza</text>
-<text x="13.400" y="6.750" font-size="0.26" fill="#2A2B22" text-anchor="middle" font-weight="400">terraza</text>
+<text x="7.800" y="11.600" font-size="0.34" fill="#2A2B22" text-anchor="middle" font-weight="500">Sala</text>
+<text x="7.800" y="11.980" font-size="0.24" fill="#6B6C5E" text-anchor="middle" font-weight="400">zona social 9.60 × 6.40 · 72 m²</text>
+<text x="7.800" y="13.650" font-size="0.32" fill="#2A2B22" text-anchor="middle" font-weight="400">Terraza sur</text>
+<text x="7.800" y="14.030" font-size="0.24" fill="#6B6C5E" text-anchor="middle" font-weight="400">15.20 × 2.40 + 10.00 × 2.60</text>
+<text x="5.400" y="17.000" font-size="0.22" fill="#2A2B22" text-anchor="middle" font-weight="400">comedor 6 personas</text>
+<text x="10.100" y="17.150" font-size="0.22" fill="#2A2B22" text-anchor="middle" font-weight="400">sala exterior</text>
+<text x="1.500" y="6.400" font-size="0.26" fill="#2A2B22" text-anchor="middle" font-weight="400">terraza</text>
+<text x="1.500" y="6.780" font-size="0.24" fill="#6B6C5E" text-anchor="middle" font-weight="400">2.60 × 6.80</text>
+<text x="14.100" y="6.400" font-size="0.26" fill="#2A2B22" text-anchor="middle" font-weight="400">terraza</text>
+<text x="14.100" y="6.780" font-size="0.24" fill="#6B6C5E" text-anchor="middle" font-weight="400">2.60 × 6.80</text>
+<text x="7.800" y="5.620" font-size="0.2" fill="#2A2B22" text-anchor="middle" font-weight="400">isla 4.00 × 1.30</text>
 <text x="7.800" y="-0.600" font-size="0.26" fill="#6B6C5E" text-anchor="middle" font-weight="400">un solo techo a dos aguas, 23°</text>
 <text x="2.000" y="12.750" font-size="0.27" fill="#7A5F3E" text-anchor="middle" font-weight="400">pérgola</text>
 <text x="13.600" y="12.750" font-size="0.27" fill="#7A5F3E" text-anchor="middle" font-weight="400">pérgola</text>
 <text x="9.500" y="4.550" font-size="0.2" fill="#2A2B22" text-anchor="middle" font-weight="400">refri + horno</text>
 <text x="5.150" y="4.820" font-size="0.2" fill="#5D5A1E" text-anchor="middle" font-weight="400">helicoidal</text>
-<text x="1.500" y="9.350" font-size="0.22" fill="#8A7420" text-anchor="middle" font-weight="400">ventana de barra</text>
-<text x="14.100" y="9.350" font-size="0.22" fill="#8A7420" text-anchor="middle" font-weight="400">ventana de barra</text>
-<text x="1.500" y="11.300" font-size="0.22" fill="#8A7420" text-anchor="middle" font-weight="400">corrediza sala</text>
-<text x="14.100" y="11.300" font-size="0.22" fill="#8A7420" text-anchor="middle" font-weight="400">corrediza sala</text>
-<g stroke="#6B6C5E" stroke-width=".03"><line x1="0" y1="15.5" x2="15.6" y2="15.5"/><line x1="0" y1="15.350000000000001" x2="0" y2="15.65"/><line x1="2.8" y1="15.350000000000001" x2="2.8" y2="15.65"/><line x1="12.8" y1="15.350000000000001" x2="12.8" y2="15.65"/><line x1="15.6" y1="15.350000000000001" x2="15.6" y2="15.65"/></g>
-<text x="1.400" y="15.400" font-size="0.26" fill="#6B6C5E" text-anchor="middle" font-weight="400">2.80</text>
-<text x="7.800" y="15.400" font-size="0.26" fill="#6B6C5E" text-anchor="middle" font-weight="400">10.00 zona social</text>
-<text x="14.200" y="15.400" font-size="0.26" fill="#6B6C5E" text-anchor="middle" font-weight="400">2.80</text>
+<text x="1.500" y="9.350" font-size="0.22" fill="#8A7420" text-anchor="middle" font-weight="400">ventana de barra 1.80</text>
+<text x="14.100" y="9.350" font-size="0.22" fill="#8A7420" text-anchor="middle" font-weight="400">ventana de barra 1.80</text>
+<text x="1.500" y="11.300" font-size="0.22" fill="#8A7420" text-anchor="middle" font-weight="400">corrediza 2.40</text>
+<text x="14.100" y="11.300" font-size="0.22" fill="#8A7420" text-anchor="middle" font-weight="400">corrediza 2.40</text>
+<text x="1.500" y="5.950" font-size="0.2" fill="#8A7420" text-anchor="middle" font-weight="400">corrediza 2.40</text>
+<text x="14.100" y="5.950" font-size="0.2" fill="#8A7420" text-anchor="middle" font-weight="400">corrediza 2.40</text>
+<text x="7.800" y="12.750" font-size="0.2" fill="#8A7420" text-anchor="middle" font-weight="400">ventanal 5.20</text>
+<g stroke="#6B6C5E" stroke-width=".03"><line x1="0" y1="18.1" x2="15.6" y2="18.1"/><line x1="0" y1="17.950000000000003" x2="0" y2="18.25"/><line x1="2.8" y1="17.950000000000003" x2="2.8" y2="18.25"/><line x1="12.8" y1="17.950000000000003" x2="12.8" y2="18.25"/><line x1="15.6" y1="17.950000000000003" x2="15.6" y2="18.25"/></g>
+<text x="1.400" y="17.980" font-size="0.26" fill="#6B6C5E" text-anchor="middle" font-weight="400">2.80</text>
+<text x="7.800" y="17.980" font-size="0.26" fill="#6B6C5E" text-anchor="middle" font-weight="400">10.00 zona social y terraza</text>
+<text x="14.200" y="17.980" font-size="0.26" fill="#6B6C5E" text-anchor="middle" font-weight="400">2.80</text>
+<g stroke="#6B6C5E" stroke-width=".03"><line x1="-1.5" y1="0" x2="-1.5" y2="17.4"/><line x1="-1.65" y1="0" x2="-1.35" y2="0"/><line x1="-1.65" y1="1.2" x2="-1.35" y2="1.2"/><line x1="-1.65" y1="5.6" x2="-1.35" y2="5.6"/><line x1="-1.65" y1="12.4" x2="-1.35" y2="12.4"/><line x1="-1.65" y1="14.8" x2="-1.35" y2="14.8"/><line x1="-1.65" y1="17.4" x2="-1.35" y2="17.4"/></g>
+<text x="-1.68" y="0.60" font-size=".26" fill="#6B6C5E" text-anchor="middle" transform="rotate(-90 -1.68 0.60)">1.20</text>
+<text x="-1.68" y="3.40" font-size=".26" fill="#6B6C5E" text-anchor="middle" transform="rotate(-90 -1.68 3.40)">4.40</text>
+<text x="-1.68" y="9.00" font-size=".26" fill="#6B6C5E" text-anchor="middle" transform="rotate(-90 -1.68 9.00)">6.80</text>
+<text x="-1.68" y="13.60" font-size=".26" fill="#6B6C5E" text-anchor="middle" transform="rotate(-90 -1.68 13.60)">2.40</text>
+<text x="-1.68" y="16.10" font-size=".26" fill="#6B6C5E" text-anchor="middle" transform="rotate(-90 -1.68 16.10)">2.60</text>
 <g fill="none" stroke="#B39B3C" stroke-width=".06"><path d="M6.4 8.1 L2.5 8.1 M2.8 7.9 L2.5 8.1 L2.8 8.3"/><path d="M9.2 8.1 L13.1 8.1 M12.8 7.9 L13.1 8.1 L12.8 8.3"/></g>
 <circle cx="5.15" cy="5.75" r="0.7" fill="#EFE6D6" stroke="#5D5A1E" stroke-width=".04"/><circle cx="5.15" cy="5.75" r=".06" fill="#2B2C2A"/>
 <line x1="5.15" y1="5.75" x2="5.756" y2="5.400" stroke="#A47E52" stroke-width=".03"/>
@@ -757,7 +840,7 @@ tr.sum td{font-weight:500;border-bottom:none;padding-top:10px}
         <tr class="sum"><td>Construcción</td><td>muros incluidos</td><td>147.2 m²</td></tr>
         <tr><td>Mezzanine TV (opción)</td><td>6.8 × 2.4 m</td><td>16.3 m²</td></tr>
         <tr><td>Bodega en tapanco (junto al mezzanine)</td><td>6.8 × 1.1 m</td><td>7.5 m²</td></tr>
-        <tr><td>Terraza única en U (piedra)</td><td>2 × 2.6 × 6.8 + 15.2 × 2.4</td><td>71.9 m²</td></tr>
+        <tr><td>Terraza en U + terraza sur ampliada (piedra)</td><td>2 × 2.6 × 6.8 + 15.2 × 2.4 + 10.0 × 2.6</td><td>97.9 m²</td></tr>
         <tr><td>Paneles, regla 7.9</td><td>sin / con mezzanine</td><td>5 / 6 × 525 W</td></tr>
       </table>
     </div>
@@ -768,7 +851,7 @@ tr.sum td{font-weight:500;border-bottom:none;padding-top:10px}
 <script>
 (function(){
 if(!window.THREE){document.getElementById('err').style.display='flex';return;}
-const DATA={"SX0": 2.8, "SX1": 12.8, "ES": 4.179600000000001, "DOGS": [[[18.1, 8.0], [19.200000000000003, 8.0]], [[20.200000000000003, 8.0], [25.0, 8.0]], [[25.0, 8.0], [25.0, 22.799999999999997]], [[25.0, 22.799999999999997], [18.1, 22.799999999999997]], [[18.1, 22.799999999999997], [18.1, 19.0]], [[18.1, 18.0], [18.1, 13.6]]], "GATES": [[[19.200000000000003, 8.0], [20.200000000000003, 8.0]], [[18.1, 18.0], [18.1, 19.0]]], "SI": {"bathfill": [0.2, 4.2, 0.2, 2.2], "wc": [3.1, 4.2, 0.2, 1.6], "shower": [0.2, 1.4, 0.2, 2.0], "vanity": [1.6, 3.0, 0.2, 0.75], "head": [1.0, 3.0, 2.2, 2.35], "wardrobe": [3.6, 4.2, 2.45, 3.95], "bed": [1.1, 2.9, 2.35, 4.35], "bench": [0.3, 0.75, 3.2, 4.4]}, "LOTD": 44.0, "NROT": -11.7, "H": {"m_north": [{"a": 0.4, "b": 1.2, "s": 2.0500000000000003, "h": 2.6500000000000004}, {"a": 1.8, "b": 2.8, "s": 1.8499999999999999, "h": 2.5500000000000003}], "b_north": [{"a": 12.8, "b": 13.8, "s": 1.8499999999999999, "h": 2.5500000000000003}, {"a": 14.4, "b": 15.2, "s": 2.0500000000000003, "h": 2.6500000000000004}], "c_north": [{"a": 5.0, "b": 6.0, "s": 2.0500000000000003, "h": 2.6500000000000004}, {"a": 7.3, "b": 8.3, "s": 0.45, "h": 2.75, "t": "door"}, {"a": 9.6, "b": 10.6, "s": 2.0500000000000003, "h": 2.6500000000000004}], "m_south": [{"a": 0.3, "b": 2.7, "s": 0.45, "h": 2.6}], "b_south": [{"a": 12.899999999999999, "b": 15.299999999999999, "s": 0.45, "h": 2.6}], "c_glass": [{"a": 5.2, "b": 10.4, "s": 0.45, "h": 3.35}], "c_poly": [[5.3, 3.5500000000000003], [10.3, 3.5500000000000003], [10.3, 4.8472], [7.8, 5.8072], [5.3, 4.847200000000001]], "m_west": [{"a": 3.3, "b": 4.3, "s": 1.55, "h": 2.45}], "b_east": [{"a": 3.3, "b": 4.3, "s": 1.55, "h": 2.45}], "m_spine": [{"a": 0.4, "b": 1.2, "s": 0.45, "h": 2.5500000000000003, "t": "open"}, {"a": 3.2, "b": 4.0, "s": 0.45, "h": 2.5500000000000003, "t": "open"}], "b_spine": [{"a": 11.6, "b": 12.4, "s": 0.45, "h": 2.5500000000000003, "t": "open"}, {"a": 14.4, "b": 15.2, "s": 0.45, "h": 2.5500000000000003, "t": "open"}], "stone": [{"a": 7.2, "b": 8.4, "s": 0.45, "h": 2.75, "t": "open"}], "c_westN": [{"a": 4.2, "b": 5.0, "s": 0.45, "h": 2.6500000000000004, "t": "door"}], "c_eastN": [{"a": 4.2, "b": 5.0, "s": 0.45, "h": 2.6500000000000004, "t": "door"}], "c_westS": [{"a": 7.2, "b": 9.0, "s": 1.4, "h": 2.75}, {"a": 9.7, "b": 12.1, "s": 0.45, "h": 2.75}], "c_eastS": [{"a": 7.2, "b": 9.0, "s": 1.4, "h": 2.75}, {"a": 9.7, "b": 12.1, "s": 0.45, "h": 2.75}], "parts": [[6.8, 1.4, 4.0, [[2.2, 3.0, -1]]], [8.7, 1.4, 4.0, [[2.2, 3.0, 1]]]], "suites": [{"mir": false}, {"mir": true}], "furn": [[8.6, 10.4, 4.2, 4.8, 0, 2.2, "f"], [7.15, 8.45, 5.8, 9.2, 0, 0.92, "w"], [5.6, 10.0, 9.6, 10.5, 0, 0.8, "f"], [7.0, 8.6, 10.75, 11.2, 0, 0.4, "w"], [4.3, 5.0, 11.3, 12.0, 0, 0.75, "f"], [10.6, 11.3, 11.3, 12.0, 0, 0.75, "f"]], "stools": [[6.7, 7.75], [6.7, 8.4], [6.7, 9.05], [8.9, 7.75], [8.9, 8.4], [8.9, 9.05]], "spiral": [5.15, 5.75, 0.7], "stove": [3.7, 6.6], "terraces": [[0.2, 2.8, 5.6, 12.4], [12.8, 15.4, 5.6, 12.4], [0.2, 15.4, 12.4, 14.8], [4.4, 11.200000000000001, 0, 1.2]], "beds": [[-1.0, -0.2, 5.8, 14.8], [15.799999999999999, 16.6, 5.8, 14.8]], "panels": [[5.2, 7.27, 2.6], [5.2, 7.27, 3.8], [8.33, 10.4, 2.6], [8.33, 10.4, 3.8]], "chains": [[2.65, 12.9], [12.950000000000001, 12.9], [-0.6, 5.6], [16.2, 5.6]], "posts": [[0.0, 8.6], [0.0, 12.85], [15.6, 8.6], [15.6, 12.85]], "ties": [6.4, 8.8, 11.2], "collars": [2.6, 3.8]}, "HX": 2.5, "HY": 8.0, "fd": [10.3, 8.899999999999999], "W": 15.6, "XC": 7.8, "NX0": 4.2, "NX1": 11.4, "WD": 5.6, "ND": 12.4, "NZ0": 1.2, "EAV": 2.95, "K": 0.424, "EN": 4.7732},H=DATA.H;
+const DATA={"SX0": 2.8, "SX1": 12.8, "ES": 4.179600000000001, "DOGS": [[[18.1, 8.0], [19.200000000000003, 8.0]], [[20.200000000000003, 8.0], [25.0, 8.0]], [[25.0, 8.0], [25.0, 22.799999999999997]], [[25.0, 22.799999999999997], [18.1, 22.799999999999997]], [[18.1, 22.799999999999997], [18.1, 19.0]], [[18.1, 18.0], [18.1, 13.6]]], "GATES": [[[19.200000000000003, 8.0], [20.200000000000003, 8.0]], [[18.1, 18.0], [18.1, 19.0]]], "SI": {"bathfill": [0.2, 4.2, 0.2, 2.2], "wc": [3.1, 4.2, 0.2, 1.6], "shower": [0.2, 1.4, 0.2, 2.0], "vanity": [1.6, 3.0, 0.2, 0.75], "head": [1.0, 3.0, 2.2, 2.35], "wardrobe": [3.6, 4.2, 2.45, 3.95], "bed": [1.1, 2.9, 2.35, 4.35], "bench": [0.3, 0.75, 3.2, 4.4]}, "LOTD": 44.0, "NROT": -11.7, "H": {"m_north": [{"a": 0.4, "b": 1.2, "s": 2.0500000000000003, "h": 2.6500000000000004}, {"a": 1.8, "b": 2.8, "s": 1.8499999999999999, "h": 2.5500000000000003}], "b_north": [{"a": 12.8, "b": 13.8, "s": 1.8499999999999999, "h": 2.5500000000000003}, {"a": 14.4, "b": 15.2, "s": 2.0500000000000003, "h": 2.6500000000000004}], "c_north": [{"a": 5.0, "b": 6.0, "s": 2.0500000000000003, "h": 2.6500000000000004}, {"a": 7.3, "b": 8.3, "s": 0.45, "h": 2.75, "t": "door"}, {"a": 9.6, "b": 10.6, "s": 2.0500000000000003, "h": 2.6500000000000004}], "m_south": [{"a": 0.3, "b": 2.7, "s": 0.45, "h": 2.6}], "b_south": [{"a": 12.899999999999999, "b": 15.299999999999999, "s": 0.45, "h": 2.6}], "c_glass": [{"a": 5.2, "b": 10.4, "s": 0.45, "h": 3.35}], "c_poly": [[5.3, 3.5500000000000003], [10.3, 3.5500000000000003], [10.3, 4.8472], [7.8, 5.8072], [5.3, 4.847200000000001]], "m_west": [{"a": 3.3, "b": 4.3, "s": 1.55, "h": 2.45}], "b_east": [{"a": 3.3, "b": 4.3, "s": 1.55, "h": 2.45}], "m_spine": [{"a": 0.4, "b": 1.2, "s": 0.45, "h": 2.5500000000000003, "t": "open"}, {"a": 3.2, "b": 4.0, "s": 0.45, "h": 2.5500000000000003, "t": "open"}], "b_spine": [{"a": 11.6, "b": 12.4, "s": 0.45, "h": 2.5500000000000003, "t": "open"}, {"a": 14.4, "b": 15.2, "s": 0.45, "h": 2.5500000000000003, "t": "open"}], "stone": [{"a": 7.2, "b": 8.4, "s": 0.45, "h": 2.75, "t": "open"}], "c_westN": [{"a": 4.2, "b": 5.0, "s": 0.45, "h": 2.6500000000000004, "t": "door"}], "c_eastN": [{"a": 4.2, "b": 5.0, "s": 0.45, "h": 2.6500000000000004, "t": "door"}], "c_westS": [{"a": 7.2, "b": 9.0, "s": 1.4, "h": 2.75}, {"a": 9.7, "b": 12.1, "s": 0.45, "h": 2.75}], "c_eastS": [{"a": 7.2, "b": 9.0, "s": 1.4, "h": 2.75}, {"a": 9.7, "b": 12.1, "s": 0.45, "h": 2.75}], "parts": [[6.8, 1.4, 4.0, [[2.2, 3.0, -1]]], [8.7, 1.4, 4.0, [[2.2, 3.0, 1]]]], "suites": [{"mir": false}, {"mir": true}], "furn": [[8.6, 10.4, 4.2, 4.8, 0, 2.2, "f"], [7.15, 8.45, 5.8, 9.2, 0, 0.92, "w"], [5.6, 10.0, 9.6, 10.5, 0, 0.8, "f"], [7.0, 8.6, 10.75, 11.2, 0, 0.4, "w"], [4.3, 5.0, 11.3, 12.0, 0, 0.75, "f"], [10.6, 11.3, 11.3, 12.0, 0, 0.75, "f"]], "stools": [[6.7, 7.75], [6.7, 8.4], [6.7, 9.05], [8.9, 7.75], [8.9, 8.4], [8.9, 9.05]], "spiral": [5.15, 5.75, 0.7], "stove": [3.7, 6.6], "terraces": [[0.2, 2.8, 5.6, 12.4], [12.8, 15.4, 5.6, 12.4], [0.2, 15.4, 12.4, 14.8], [2.8, 12.8, 14.8, 17.4], [4.4, 11.200000000000001, 0, 1.2]], "tfurn": [[4.3, 6.5, 14.9, 15.9, 0, 0.75, "w"], [8.9, 11.3, 14.9, 15.7, 0, 0.7, "f"], [9.5, 10.7, 16.0, 16.5, 0, 0.4, "w"], [8.6, 9.3, 16.6, 17.3, 0, 0.7, "f"], [10.9, 11.6, 16.6, 17.3, 0, 0.7, "f"]], "tchairs": [[4.75, 14.55], [4.75, 16.25], [5.4, 14.55], [5.4, 16.25], [6.05, 14.55], [6.05, 16.25]], "beds": [[-1.0, -0.2, 5.8, 14.8], [15.799999999999999, 16.6, 5.8, 14.8]], "panels": [[5.2, 7.27, 2.6], [5.2, 7.27, 3.8], [8.33, 10.4, 2.6], [8.33, 10.4, 3.8]], "chains": [[2.65, 12.9], [12.950000000000001, 12.9], [-0.6, 5.6], [16.2, 5.6]], "posts": [[0.0, 8.6], [0.0, 12.85], [15.6, 8.6], [15.6, 12.85]], "ties": [6.4, 8.8, 11.2], "collars": [2.6, 3.8]}, "HX": 2.5, "HY": 8.0, "fd": [10.3, 8.899999999999999], "W": 15.6, "XC": 7.8, "NX0": 4.2, "NX1": 11.4, "WD": 5.6, "ND": 12.4, "NZ0": 1.2, "EAV": 2.95, "K": 0.424, "EN": 4.7732},H=DATA.H;
 const host=document.getElementById('viewer');
 const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
 const scene=new THREE.Scene();scene.background=new THREE.Color(0xDCE3E2);scene.fog=new THREE.Fog(0xDCE3E2,80,190);
@@ -778,7 +861,48 @@ renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.shadowMap.enabled=
 host.prepend(renderer.domElement);
 scene.add(new THREE.HemisphereLight(0xffffff,0x6b7040,0.65));
 const sun=new THREE.DirectionalLight(0xfff4e0,1.0);sun.position.set(8,30,24);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);
-Object.assign(sun.shadow.camera,{left:-28,right:28,top:28,bottom:-28,near:1,far:90});sun.shadow.bias=-0.0005;scene.add(sun);
+Object.assign(sun.shadow.camera,{left:-30,right:30,top:30,bottom:-30,near:1,far:120});sun.shadow.bias=-0.0005;scene.add(sun);scene.add(sun.target);
+// ---- sun study: real sun position for Amealco (lat 20.19 N, lon 100.14 W, UTC-6, no daylight saving)
+const SUN={lat:20.19*Math.PI/180,lon:-100.14,tz:-6};
+const hemi=scene.children.find(o=>o.isHemisphereLight);
+const sunBall=new THREE.Mesh(new THREE.SphereGeometry(1.6,20,14),new THREE.MeshBasicMaterial({color:0xFFD27A,fog:false}));scene.add(sunBall);
+let sunPath=null;
+function solar(n,h){const g=2*Math.PI/365*(n-1+(h-12)/24);
+  const eq=229.18*(0.000075+0.001868*Math.cos(g)-0.032077*Math.sin(g)-0.014615*Math.cos(2*g)-0.040849*Math.sin(2*g));
+  const d=0.006918-0.399912*Math.cos(g)+0.070257*Math.sin(g)-0.006758*Math.cos(2*g)+0.000907*Math.sin(2*g)-0.002697*Math.cos(3*g)+0.00148*Math.sin(3*g);
+  const tst=h*60+eq+4*SUN.lon-60*SUN.tz, ha=(tst/4-180)*Math.PI/180;
+  const ce=Math.sin(SUN.lat)*Math.sin(d)+Math.cos(SUN.lat)*Math.cos(d)*Math.cos(ha), el=Math.asin(Math.max(-1,Math.min(1,ce)));
+  let az=Math.atan2(Math.sin(ha),Math.cos(ha)*Math.sin(SUN.lat)-Math.tan(d)*Math.cos(SUN.lat))+Math.PI;
+  return {el,az};}
+const sunDir=(el,az)=>new THREE.Vector3(Math.cos(el)*Math.sin(az),Math.sin(el),-Math.cos(el)*Math.cos(az));
+const cDay=new THREE.Color(0xDCE3E2),cDawn=new THREE.Color(0xE9C29A),cNight=new THREE.Color(0x232B3A);
+function dayOfYear(){const d=new Date(),s=new Date(d.getFullYear(),0,0);return Math.floor((d-s)/864e5);}
+function curDay(){const v=document.getElementById('sunDate').value;return v==='today'?dayOfYear():+v;}
+function drawPath(n){if(sunPath)scene.remove(sunPath);const pts=[];const g=new THREE.Group();
+  for(let h=4;h<=21;h+=0.1){const s=solar(n,h);if(s.el>0)pts.push(sunDir(s.el,s.az).multiplyScalar(48));}
+  if(pts.length>1){g.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts),new THREE.LineBasicMaterial({color:0xB39B3C,fog:false})));}
+  for(let h=5;h<=20;h++){const s=solar(n,h);if(s.el>0){const m=new THREE.Mesh(new THREE.SphereGeometry(.45,10,8),new THREE.MeshBasicMaterial({color:0xB39B3C,fog:false}));m.position.copy(sunDir(s.el,s.az).multiplyScalar(48));g.add(m);}}
+  sunPath=g;scene.add(g);}
+const pad=x=>String(x).padStart(2,'0');
+const CARD=['N','NE','E','SE','S','SO','O','NO'];
+function setSun(){const n=curDay(),h=+document.getElementById('sunHour').value,s=solar(n,h);
+  const dir=sunDir(s.el,s.az);sun.position.copy(dir.clone().multiplyScalar(60));sun.target.position.set(0,0,0);
+  sunBall.position.copy(dir.clone().multiplyScalar(48));sunBall.visible=s.el>-0.02;
+  const k=Math.max(0,Math.sin(s.el));sun.intensity=Math.min(1.05,k*1.6);sun.castShadow=s.el>0.02;
+  sun.color.setHSL(0.09,0.9,0.55+0.4*Math.min(1,k*2.5));hemi.intensity=0.18+0.5*Math.min(1,k*2);
+  const elDeg=s.el*180/Math.PI;let sky;
+  if(elDeg<-6)sky=cNight.clone();else if(elDeg<6)sky=cNight.clone().lerp(cDawn,(elDeg+6)/12);else if(elDeg<16)sky=cDawn.clone().lerp(cDay,(elDeg-6)/10);else sky=cDay.clone();
+  scene.background.copy(sky);scene.fog.color.copy(sky);
+  const hh=Math.floor(h),mm=Math.round((h-hh)*60);document.getElementById('sunClock').textContent=pad(hh)+':'+pad(mm);
+  const azDeg=(s.az*180/Math.PI+360)%360;
+  document.getElementById('sunInfo').textContent=elDeg>0?('altura '+Math.round(elDeg)+'° · desde el '+CARD[Math.round(azDeg/45)%8]+' ('+Math.round(azDeg)+'°)'):'sol bajo el horizonte';}
+document.getElementById('sunHour').addEventListener('input',setSun);
+document.getElementById('sunDate').addEventListener('change',()=>{drawPath(curDay());setSun();});
+let playT=null;const playBtn=document.getElementById('sunPlay');
+playBtn.addEventListener('click',()=>{if(playT){clearInterval(playT);playT=null;playBtn.setAttribute('aria-pressed','false');playBtn.textContent='▶ Día completo';return;}
+  const hr=document.getElementById('sunHour');if(+hr.value>=19.9)hr.value=5.5;playBtn.setAttribute('aria-pressed','true');playBtn.textContent='❚❚ Pausa';
+  playT=setInterval(()=>{const v=+hr.value+0.05;if(v>20){clearInterval(playT);playT=null;playBtn.setAttribute('aria-pressed','false');playBtn.textContent='▶ Día completo';return;}hr.value=v.toFixed(2);setSun();},60);});
+drawPath(curDay());setSun();
 const M=(c,o={})=>new THREE.MeshStandardMaterial(Object.assign({color:c,roughness:.85},o));
 function stoneTex(w,d,seed0){
   const c=document.createElement('canvas');c.width=c.height=512;const g=c.getContext('2d');g.fillStyle='#A9A190';g.fillRect(0,0,512,512);
@@ -848,6 +972,7 @@ prismZ(ND-0.2,0.2,[[SX0,FF],[SX0,r(SX0)],[XC,RID],[SX1,r(SX1)],[SX1,FF]],H.c_gla
 H.parts.forEach(([x,z0,z1,g])=>{let c=z0;g.forEach(([a,b])=>{box(x,x+.1,FF,FF+2.35,c,a,mat.part);box(x,x+.1,FF+2.1,FF+2.35,a,b,mat.part);c=b;});box(x,x+.1,FF,FF+2.35,c,z1,mat.part);});
 box(NX0+0.2,NX1-0.2,FF+2.35,FF+2.6,NZ0+0.2,4.2,mat.wood);
 H.furn.forEach(f=>box(f[0],f[1],FF+f[4],FF+f[5],f[2],f[3],f[6]==='w'?mat.wood:mat.furn));
+H.tfurn.forEach(f=>box(f[0],f[1],FF+f[4],FF+f[5],f[2],f[3],f[6]==='w'?mat.wood:mat.furn));H.tchairs.forEach(([x,z])=>box(x-.22,x+.22,FF,FF+0.45,z-.22,z+.22,mat.wood));
 box(7.22,8.38,FF,FF+0.88,5.85,8.4,mat.furn);box(7.35,8.25,FF+0.925,FF+0.935,5.95,6.75,M(0x111111,{roughness:.3}));
 H.stools.forEach(([x,z])=>{const s=new THREE.Mesh(new THREE.CylinderGeometry(.19,.16,.66,16),mat.steel);s.position.set(x,FF+.33,z);P.add(s);});
 {const [x,z]=H.stove;const s=new THREE.Mesh(new THREE.CylinderGeometry(.33,.33,1.0,24),mat.steel);s.position.set(x,FF+.5,z);s.castShadow=true;P.add(s);
@@ -932,7 +1057,11 @@ const btns=[...document.querySelectorAll('[data-view]')];
 btns.forEach(b=>b.addEventListener('click',()=>{setGoal(views[b.dataset.view]);let d=goal.th-cur.th;while(d>Math.PI)d-=2*Math.PI;while(d<-Math.PI)d+=2*Math.PI;goal.th=cur.th+d;
   if(reduce)Object.assign(cur,goal);btns.forEach(x=>x.setAttribute('aria-pressed',x===b));}));
 const roofBtn=document.getElementById('roofBtn');
-roofBtn.addEventListener('click',()=>{roofG.visible=!roofG.visible;const on=!roofG.visible;roofBtn.setAttribute('aria-pressed',on);roofBtn.textContent=on?'Poner lámina del techo':'Quitar lámina del techo';});
+// "Remove roof" only hides it from view: it keeps casting its shadow, so the sun study stays truthful inside the house
+const ghost=new THREE.MeshBasicMaterial({colorWrite:false,depthWrite:false});let roofOff=false;
+roofG.traverse(o=>{if(o.isMesh)o.userData.mat=o.material;});
+roofBtn.addEventListener('click',()=>{roofOff=!roofOff;roofG.traverse(o=>{if(o.isMesh){o.material=roofOff?ghost:o.userData.mat;o.castShadow=true;}});
+  roofBtn.setAttribute('aria-pressed',roofOff);roofBtn.textContent=roofOff?'Poner lámina del techo':'Quitar lámina (sombra real)';});
 let drag=null;const cv=renderer.domElement;
 cv.addEventListener('pointerdown',e=>{drag={x:e.clientX,y:e.clientY};cv.setPointerCapture(e.pointerId);});
 cv.addEventListener('pointermove',e=>{if(!drag)return;const dx=e.clientX-drag.x,dy=e.clientY-drag.y;drag={x:e.clientX,y:e.clientY};
