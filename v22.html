@@ -1,0 +1,1196 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Casa Granero v22, Garden Village</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{--olive:#5D5A1E;--ochre:#B39B3C;--ink:#2A2B22;--mute:#6B6C5E;--bg:#E9EBE3;--paper:#F7F7F2;--line:#C9CBBE}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Jost,system-ui,sans-serif;line-height:1.55}
+header{padding:28px 32px 18px;max-width:1240px;margin:0 auto;display:flex;justify-content:space-between;align-items:flex-end;gap:24px;flex-wrap:wrap}
+h1{font-weight:300;font-size:40px;letter-spacing:.04em;margin:0;line-height:1.1;color:var(--olive)}
+header p{margin:6px 0 0;color:var(--mute);font-size:16px;max-width:66ch}
+.facts{display:flex;gap:28px;font-size:14px;color:var(--mute);flex-wrap:wrap}
+.facts b{display:block;font-weight:500;font-size:22px;color:var(--ink)}
+#viewer{position:relative;max-width:1240px;margin:0 auto;height:64vh;min-height:440px;background:#DCE3E2;border-top:3px solid var(--olive)}
+#viewer canvas{display:block;width:100%;height:100%;cursor:grab;touch-action:none}
+.ctrls{position:absolute;left:16px;bottom:16px;display:flex;gap:8px;flex-wrap:wrap}
+.ctrls button{font:inherit;font-size:14px;padding:8px 14px;border:1px solid var(--olive);background:var(--paper);color:var(--olive);cursor:pointer}
+.ctrls button[aria-pressed=true]{background:var(--olive);color:var(--paper)}
+.ctrls button:focus-visible{outline:2px solid var(--ochre);outline-offset:2px}
+.hint{position:absolute;right:16px;bottom:18px;font-size:13px;color:var(--mute)}
+.sunbox{position:absolute;right:16px;top:16px;width:300px;background:rgba(247,247,242,.94);border:1px solid var(--line);padding:12px 14px;font-size:13px;color:var(--ink)}
+.sunbox .row{display:flex;gap:8px;align-items:center;margin-bottom:8px}
+.sunbox select,.sunbox button{font:inherit;font-size:13px;padding:5px 8px;border:1px solid var(--olive);background:var(--paper);color:var(--olive);cursor:pointer}
+.sunbox button[aria-pressed=true]{background:var(--olive);color:var(--paper)}
+.sunbox input[type=range]{width:100%;accent-color:var(--ochre)}
+.sunbox .read{display:flex;justify-content:space-between;color:var(--mute);font-variant-numeric:tabular-nums}
+.sunbox .read b{color:var(--ink);font-weight:500;font-size:18px}
+.sunbox .ticks{display:flex;justify-content:space-between;font-size:10.5px;color:var(--mute);margin-top:-2px}
+@media (max-width:700px){.sunbox{left:12px;right:12px;width:auto;top:12px}}
+#err{position:absolute;inset:0;display:none;align-items:center;justify-content:center;text-align:center;padding:24px;color:var(--mute)}
+main{max-width:1240px;margin:0 auto;padding:28px 32px 48px;display:grid;grid-template-columns:1.5fr 1fr;gap:32px}
+h2{font-weight:400;font-size:20px;margin:0 0 10px;color:var(--olive)}
+.card{background:var(--paper);padding:20px}
+svg text{font-family:Jost,sans-serif}
+table{width:100%;border-collapse:collapse;font-size:14px}
+td{padding:6px 0;border-bottom:1px solid var(--line)}
+td:last-child{text-align:right;font-variant-numeric:tabular-nums}
+tr.sum td{font-weight:500;border-bottom:none;padding-top:10px}
+.notes{font-size:14px;color:var(--mute);margin:14px 0 0;padding-left:18px}
+.notes li{margin-bottom:6px}.notes b{color:var(--ink);font-weight:500}
+@media (max-width:900px){main{grid-template-columns:1fr;padding:20px}header{padding:20px}#viewer{height:54vh}}
+</style>
+</head>
+<body>
+<body>
+<header>
+  <div>
+    <h1>Casa Granero v22</h1>
+    <p>Planta redistribuida con criterio de interiorismo. Las suites ocupan toda el ala, con cama king, ropero de 4 m y circulación amplia, y su baño pasa al núcleo. Despensa, abrigos y blancos se vuelven muebles a lo largo del paso de entrada. Baño compartido y lavandería quedan compactos, junto al vestíbulo de las recámaras 3 y 4.</p>
+  </div>
+  <div class="facts">
+    <div><b>205 m²</b>un nivel</div>
+    <div><b>23°</b>un solo techo</div>
+    <div><b>≈ 6.5 m</b>cumbrera</div>
+    <div><b>4.2 m</b>claro máximo</div>
+  </div>
+</header>
+
+
+<section id="viewer" aria-label="Modelo 3D de la casa en su lote">
+  <div id="err">El modelo 3D necesita conexión a internet. Abre este archivo en un navegador (Chrome, Safari, Edge).</div>
+  <div class="ctrls" role="group" aria-label="Vistas">
+    <button data-view="garden" aria-pressed="true">Desde el jardín</button>
+    <button data-view="inside" aria-pressed="false">En la isla, viendo al oeste</button>
+    <button data-view="street" aria-pressed="false">Desde la calle</button>
+    <button data-view="top" aria-pressed="false">Desde arriba</button>
+    <button id="mezzBtn" aria-pressed="true">Mezzanine: sí</button>
+    <button id="roofBtn" aria-pressed="false">Quitar lámina (sombra real)</button>
+  </div>
+  <div class="sunbox" role="group" aria-label="Recorrido del sol">
+    <div class="row"><b style="font-weight:500;color:var(--olive)">Sol</b>
+      <select id="sunDate" aria-label="Fecha">
+        <option value="today">Hoy</option>
+        <option value="355">21 dic · invierno</option>
+        <option value="80">21 mar · equinoccio</option>
+        <option value="172">21 jun · verano</option>
+        <option value="266">23 sep · equinoccio</option>
+      </select>
+      <button id="sunPlay" aria-pressed="false">▶ Día completo</button></div>
+    <input id="sunHour" type="range" min="5.5" max="20" step="0.25" value="10" aria-label="Hora del día">
+    <div class="ticks"><span>6</span><span>8</span><span>10</span><span>12</span><span>14</span><span>16</span><span>18</span><span>20</span></div>
+    <div class="read" style="margin-top:6px"><b id="sunClock">10:00</b><span id="sunInfo"></span></div>
+    <div class="row" style="margin:8px 0 0;font-size:12px;color:var(--mute)">Giro del lote vs. norte
+      <input id="lotRot" type="number" step="0.5" style="width:64px;font:inherit;padding:3px 5px;border:1px solid var(--line)" aria-label="Giro del lote respecto al norte, en grados">°</div>
+    <div style="font-size:11px;color:var(--mute)">Amealco 20.19° N, 100.14° O · hora del centro (UTC−6)</div>
+  </div>
+  <div class="hint">Arrastra para girar, rueda para acercar</div>
+</section>
+
+
+<main>
+  <div class="card">
+    <h2>Planta</h2>
+    <svg viewBox="-20 0 690 870" width="100%" role="img" aria-label="Planta"><defs><pattern id="stoneM" width="2.4" height="2" patternUnits="userSpaceOnUse"><g transform="scale(0.05)"><rect width="48" height="40" fill="#363733"/><g fill="none" stroke="#20211F" stroke-width="1.2"><path d="M0 14 L18 12 L22 0"/><path d="M18 12 L30 22 L48 18"/><path d="M30 22 L26 40"/><path d="M0 30 L14 28 L18 12"/><path d="M14 28 L10 40"/><path d="M38 0 L36 10 L48 8"/><path d="M36 10 L30 22"/><path d="M26 40 L40 30 L48 34"/></g></g></pattern></defs><g transform="translate(46,200.8) scale(34)"><rect x="0.200" y="5.600" width="2.600" height="6.800" fill="url(#stoneM)" />
+<rect x="12.800" y="5.600" width="2.600" height="6.800" fill="url(#stoneM)" />
+<rect x="0.200" y="12.400" width="15.200" height="2.400" fill="url(#stoneM)" />
+<rect x="2.800" y="14.800" width="10.000" height="2.600" fill="url(#stoneM)" />
+<line x1="-0.600" y1="5.850" x2="2.800" y2="5.850" stroke="#A47E52" stroke-width=".05" stroke-opacity=".55"/>
+<line x1="-0.600" y1="6.250" x2="2.800" y2="6.250" stroke="#A47E52" stroke-width=".05" stroke-opacity=".55"/>
+<line x1="-0.600" y1="6.650" x2="2.800" y2="6.650" stroke="#A47E52" stroke-width=".05" stroke-opacity=".55"/>
+<line x1="-0.600" y1="7.050" x2="2.800" y2="7.050" stroke="#A47E52" stroke-width=".05" stroke-opacity=".55"/>
+<line x1="-0.600" y1="7.450" x2="2.800" y2="7.450" stroke="#A47E52" stroke-width=".05" stroke-opacity=".55"/>
+<line x1="-0.600" y1="7.850" x2="2.800" y2="7.850" stroke="#A47E52" stroke-width=".05" stroke-opacity=".55"/>
+<line x1="-0.600" y1="8.250" x2="2.800" y2="8.250" stroke="#A47E52" stroke-width=".05" stroke-opacity=".55"/>
+<line x1="-0.600" y1="8.650" x2="2.800" y2="8.650" stroke="#A47E52" stroke-width=".05" stroke-opacity=".55"/>
+<line x1="-0.600" y1="9.050" x2="2.800" y2="9.050" stroke="#A47E52" stroke-width=".05" stroke-opacity=".55"/>
+<line x1="-0.600" y1="9.450" x2="2.800" y2="9.450" stroke="#A47E52" stroke-width=".05" stroke-opacity=".55"/>
+<line x1="-0.600" y1="9.850" x2="2.800" y2="9.850" stroke="#A47E52" stroke-width=".05" stroke-opacity=".55"/>
+<line x1="-0.600" y1="10.250" x2="2.800" y2="10.250" stroke="#A47E52" stroke-width=".05" stroke-opacity=".55"/>
+<line x1="-0.600" y1="10.650" x2="2.800" y2="10.650" stroke="#A47E52" stroke-width=".05" stroke-opacity=".55"/>
+<line x1="-0.600" y1="11.050" x2="2.800" y2="11.050" stroke="#A47E52" stroke-width=".05" stroke-opacity=".55"/>
+<line x1="-0.600" y1="11.450" x2="2.800" y2="11.450" stroke="#A47E52" stroke-width=".05" stroke-opacity=".55"/>
+<line x1="-0.600" y1="11.850" x2="2.800" y2="11.850" stroke="#A47E52" stroke-width=".05" stroke-opacity=".55"/>
+<line x1="-0.600" y1="12.250" x2="2.800" y2="12.250" stroke="#A47E52" stroke-width=".05" stroke-opacity=".55"/>
+<line x1="-0.600" y1="12.650" x2="2.800" y2="12.650" stroke="#A47E52" stroke-width=".05" stroke-opacity=".55"/>
+<line x1="12.800" y1="5.850" x2="16.200" y2="5.850" stroke="#A47E52" stroke-width=".05" stroke-opacity=".55"/>
+<line x1="12.800" y1="6.250" x2="16.200" y2="6.250" stroke="#A47E52" stroke-width=".05" stroke-opacity=".55"/>
+<line x1="12.800" y1="6.650" x2="16.200" y2="6.650" stroke="#A47E52" stroke-width=".05" stroke-opacity=".55"/>
+<line x1="12.800" y1="7.050" x2="16.200" y2="7.050" stroke="#A47E52" stroke-width=".05" stroke-opacity=".55"/>
+<line x1="12.800" y1="7.450" x2="16.200" y2="7.450" stroke="#A47E52" stroke-width=".05" stroke-opacity=".55"/>
+<line x1="12.800" y1="7.850" x2="16.200" y2="7.850" stroke="#A47E52" stroke-width=".05" stroke-opacity=".55"/>
+<line x1="12.800" y1="8.250" x2="16.200" y2="8.250" stroke="#A47E52" stroke-width=".05" stroke-opacity=".55"/>
+<line x1="12.800" y1="8.650" x2="16.200" y2="8.650" stroke="#A47E52" stroke-width=".05" stroke-opacity=".55"/>
+<line x1="12.800" y1="9.050" x2="16.200" y2="9.050" stroke="#A47E52" stroke-width=".05" stroke-opacity=".55"/>
+<line x1="12.800" y1="9.450" x2="16.200" y2="9.450" stroke="#A47E52" stroke-width=".05" stroke-opacity=".55"/>
+<line x1="12.800" y1="9.850" x2="16.200" y2="9.850" stroke="#A47E52" stroke-width=".05" stroke-opacity=".55"/>
+<line x1="12.800" y1="10.250" x2="16.200" y2="10.250" stroke="#A47E52" stroke-width=".05" stroke-opacity=".55"/>
+<line x1="12.800" y1="10.650" x2="16.200" y2="10.650" stroke="#A47E52" stroke-width=".05" stroke-opacity=".55"/>
+<line x1="12.800" y1="11.050" x2="16.200" y2="11.050" stroke="#A47E52" stroke-width=".05" stroke-opacity=".55"/>
+<line x1="12.800" y1="11.450" x2="16.200" y2="11.450" stroke="#A47E52" stroke-width=".05" stroke-opacity=".55"/>
+<line x1="12.800" y1="11.850" x2="16.200" y2="11.850" stroke="#A47E52" stroke-width=".05" stroke-opacity=".55"/>
+<line x1="12.800" y1="12.250" x2="16.200" y2="12.250" stroke="#A47E52" stroke-width=".05" stroke-opacity=".55"/>
+<line x1="12.800" y1="12.650" x2="16.200" y2="12.650" stroke="#A47E52" stroke-width=".05" stroke-opacity=".55"/>
+<rect x="-1.000" y="5.800" width="0.800" height="9.000" fill="#B7C08A" />
+<circle cx="-0.800" cy="6.050" r=".16" fill="#9C8DB8"/>
+<circle cx="-0.400" cy="6.500" r=".16" fill="#9C8DB8"/>
+<circle cx="-0.800" cy="6.950" r=".16" fill="#9C8DB8"/>
+<circle cx="-0.400" cy="7.400" r=".16" fill="#9C8DB8"/>
+<circle cx="-0.800" cy="7.850" r=".16" fill="#9C8DB8"/>
+<circle cx="-0.400" cy="8.300" r=".16" fill="#9C8DB8"/>
+<circle cx="-0.800" cy="8.750" r=".16" fill="#9C8DB8"/>
+<circle cx="-0.400" cy="9.200" r=".16" fill="#9C8DB8"/>
+<circle cx="-0.800" cy="9.650" r=".16" fill="#9C8DB8"/>
+<circle cx="-0.400" cy="10.100" r=".16" fill="#9C8DB8"/>
+<circle cx="-0.800" cy="10.550" r=".16" fill="#9C8DB8"/>
+<circle cx="-0.400" cy="11.000" r=".16" fill="#9C8DB8"/>
+<circle cx="-0.800" cy="11.450" r=".16" fill="#9C8DB8"/>
+<circle cx="-0.400" cy="11.900" r=".16" fill="#9C8DB8"/>
+<circle cx="-0.800" cy="12.350" r=".16" fill="#9C8DB8"/>
+<circle cx="-0.400" cy="12.800" r=".16" fill="#9C8DB8"/>
+<circle cx="-0.800" cy="13.250" r=".16" fill="#9C8DB8"/>
+<circle cx="-0.400" cy="13.700" r=".16" fill="#9C8DB8"/>
+<circle cx="-0.800" cy="14.150" r=".16" fill="#9C8DB8"/>
+<circle cx="-0.400" cy="14.600" r=".16" fill="#9C8DB8"/>
+<rect x="15.800" y="5.800" width="0.800" height="9.000" fill="#B7C08A" />
+<circle cx="16.000" cy="6.050" r=".16" fill="#9C8DB8"/>
+<circle cx="16.400" cy="6.500" r=".16" fill="#9C8DB8"/>
+<circle cx="16.000" cy="6.950" r=".16" fill="#9C8DB8"/>
+<circle cx="16.400" cy="7.400" r=".16" fill="#9C8DB8"/>
+<circle cx="16.000" cy="7.850" r=".16" fill="#9C8DB8"/>
+<circle cx="16.400" cy="8.300" r=".16" fill="#9C8DB8"/>
+<circle cx="16.000" cy="8.750" r=".16" fill="#9C8DB8"/>
+<circle cx="16.400" cy="9.200" r=".16" fill="#9C8DB8"/>
+<circle cx="16.000" cy="9.650" r=".16" fill="#9C8DB8"/>
+<circle cx="16.400" cy="10.100" r=".16" fill="#9C8DB8"/>
+<circle cx="16.000" cy="10.550" r=".16" fill="#9C8DB8"/>
+<circle cx="16.400" cy="11.000" r=".16" fill="#9C8DB8"/>
+<circle cx="16.000" cy="11.450" r=".16" fill="#9C8DB8"/>
+<circle cx="16.400" cy="11.900" r=".16" fill="#9C8DB8"/>
+<circle cx="16.000" cy="12.350" r=".16" fill="#9C8DB8"/>
+<circle cx="16.400" cy="12.800" r=".16" fill="#9C8DB8"/>
+<circle cx="16.000" cy="13.250" r=".16" fill="#9C8DB8"/>
+<circle cx="16.400" cy="13.700" r=".16" fill="#9C8DB8"/>
+<circle cx="16.000" cy="14.150" r=".16" fill="#9C8DB8"/>
+<circle cx="16.400" cy="14.600" r=".16" fill="#9C8DB8"/>
+<rect x="0.000" y="0.000" width="4.200" height="5.600" fill="#FBFBF8" />
+<rect x="11.400" y="0.000" width="4.200" height="5.600" fill="#FBFBF8" />
+<rect x="4.200" y="1.200" width="7.200" height="11.200" fill="#FBFBF8" />
+<rect x="2.800" y="5.600" width="10.000" height="6.800" fill="#FBFBF8" />
+<rect x="0.000" y="-3.200" width="15.600" height="3.200" fill="#FBFBF8" />
+<rect x="4.200" y="0.000" width="7.200" height="1.200" fill="#FBFBF8" />
+<rect x="4.400" y="0.350" width="1.600" height="3.650" fill="#E3EBEC" />
+<rect x="9.600" y="0.350" width="1.600" height="3.650" fill="#E3EBEC" />
+<rect x="4.400" y="-1.700" width="1.600" height="1.950" fill="#E3EBEC" />
+<rect x="9.600" y="-1.700" width="1.600" height="1.950" fill="#E3EBEC" />
+<rect x="1.200" y="-2.200" width="1.600" height="2.000" fill="#D9D2C2" stroke="#8C8676" stroke-width=".03"/>
+<rect x="0.200" y="-2.800" width="0.600" height="1.300" fill="#B89468" stroke="#8C8676" stroke-width=".03"/>
+<rect x="0.700" y="-0.650" width="0.450" height="0.450" fill="#B89468" stroke="#8C8676" stroke-width=".03"/>
+<rect x="2.850" y="-0.650" width="0.450" height="0.450" fill="#B89468" stroke="#8C8676" stroke-width=".03"/>
+<rect x="12.800" y="-2.200" width="1.600" height="2.000" fill="#D9D2C2" stroke="#8C8676" stroke-width=".03"/>
+<rect x="14.800" y="-2.800" width="0.600" height="1.300" fill="#B89468" stroke="#8C8676" stroke-width=".03"/>
+<rect x="14.450" y="-0.650" width="0.450" height="0.450" fill="#B89468" stroke="#8C8676" stroke-width=".03"/>
+<rect x="12.300" y="-0.650" width="0.450" height="0.450" fill="#B89468" stroke="#8C8676" stroke-width=".03"/>
+<rect x="0.200" y="0.200" width="4.000" height="0.600" fill="#B89468" stroke="#8C8676" stroke-width=".03"/>
+<rect x="0.200" y="1.950" width="2.030" height="1.930" fill="#D9D2C2" stroke="#8C8676" stroke-width=".03"/>
+<rect x="0.200" y="1.450" width="0.450" height="0.450" fill="#B89468" stroke="#8C8676" stroke-width=".03"/>
+<rect x="0.200" y="3.930" width="0.450" height="0.450" fill="#B89468" stroke="#8C8676" stroke-width=".03"/>
+<rect x="11.400" y="0.200" width="4.000" height="0.600" fill="#B89468" stroke="#8C8676" stroke-width=".03"/>
+<rect x="13.370" y="1.950" width="2.030" height="1.930" fill="#D9D2C2" stroke="#8C8676" stroke-width=".03"/>
+<rect x="14.950" y="1.450" width="0.450" height="0.450" fill="#B89468" stroke="#8C8676" stroke-width=".03"/>
+<rect x="14.950" y="3.930" width="0.450" height="0.450" fill="#B89468" stroke="#8C8676" stroke-width=".03"/>
+<rect x="4.500" y="0.450" width="1.400" height="1.000" fill="#D9D2C2" stroke="#8C8676" stroke-width=".03"/>
+<rect x="5.350" y="1.650" width="0.600" height="0.600" fill="#D9D2C2" stroke="#8C8676" stroke-width=".03"/>
+<rect x="5.400" y="2.600" width="0.550" height="1.300" fill="#D9D2C2" stroke="#8C8676" stroke-width=".03"/>
+<rect x="9.700" y="0.450" width="1.400" height="1.000" fill="#D9D2C2" stroke="#8C8676" stroke-width=".03"/>
+<rect x="9.650" y="1.650" width="0.600" height="0.600" fill="#D9D2C2" stroke="#8C8676" stroke-width=".03"/>
+<rect x="9.650" y="2.600" width="0.550" height="1.300" fill="#D9D2C2" stroke="#8C8676" stroke-width=".03"/>
+<rect x="5.150" y="-0.600" width="0.800" height="0.800" fill="#D9D2C2" stroke="#8C8676" stroke-width=".03"/>
+<rect x="4.500" y="-0.350" width="0.550" height="0.550" fill="#D9D2C2" stroke="#8C8676" stroke-width=".03"/>
+<rect x="4.450" y="-1.350" width="0.450" height="0.550" fill="#D9D2C2" stroke="#8C8676" stroke-width=".03"/>
+<rect x="9.700" y="-0.500" width="0.700" height="0.700" fill="#D9D2C2" stroke="#8C8676" stroke-width=".03"/>
+<rect x="10.450" y="-0.500" width="0.700" height="0.700" fill="#D9D2C2" stroke="#8C8676" stroke-width=".03"/>
+<rect x="10.600" y="-1.700" width="0.550" height="0.500" fill="#D9D2C2" stroke="#8C8676" stroke-width=".03"/>
+<rect x="6.100" y="-1.700" width="0.900" height="2.700" fill="#B89468" stroke="#8C8676" stroke-width=".03"/>
+<rect x="8.600" y="-1.700" width="0.900" height="2.700" fill="#B89468" stroke="#8C8676" stroke-width=".03"/>
+<rect x="6.100" y="1.300" width="0.900" height="2.650" fill="#B89468" stroke="#8C8676" stroke-width=".03"/>
+<rect x="8.600" y="1.300" width="0.900" height="2.650" fill="#B89468" stroke="#8C8676" stroke-width=".03"/>
+<rect x="8.600" y="4.200" width="1.800" height="0.600" fill="#C9C2B3" stroke="#8C8676" stroke-width=".03"/>
+<rect x="7.150" y="5.800" width="1.300" height="3.400" fill="#B89468" stroke="#8C8676" stroke-width=".03"/>
+<rect x="5.600" y="9.600" width="4.400" height="0.900" fill="#D9D2C2" stroke="#8C8676" stroke-width=".03"/>
+<rect x="7.000" y="10.750" width="1.600" height="0.450" fill="#B89468" stroke="#8C8676" stroke-width=".03"/>
+<rect x="4.300" y="11.300" width="0.700" height="0.700" fill="#D9D2C2" stroke="#8C8676" stroke-width=".03"/>
+<rect x="10.600" y="11.300" width="0.700" height="0.700" fill="#D9D2C2" stroke="#8C8676" stroke-width=".03"/>
+<rect x="7.350" y="5.950" width="0.900" height="0.800" fill="none" stroke="#2E2A26" stroke-width=".03"/>
+<circle cx="7.6" cy="6.2" r=".14" fill="none" stroke="#2E2A26" stroke-width=".03"/><circle cx="8.0" cy="6.5" r=".14" fill="none" stroke="#2E2A26" stroke-width=".03"/>
+<rect x="7.400" y="6.900" width="0.800" height="0.400" fill="#8FB0BB" />
+<rect x="4.300" y="14.900" width="2.200" height="1.000" fill="#B89468" stroke="#8C8676" stroke-width=".03"/>
+<rect x="8.900" y="14.900" width="2.400" height="0.800" fill="#D9D2C2" stroke="#8C8676" stroke-width=".03"/>
+<rect x="9.500" y="16.000" width="1.200" height="0.500" fill="#B89468" stroke="#8C8676" stroke-width=".03"/>
+<rect x="8.600" y="16.600" width="0.700" height="0.700" fill="#D9D2C2" stroke="#8C8676" stroke-width=".03"/>
+<rect x="10.900" y="16.600" width="0.700" height="0.700" fill="#D9D2C2" stroke="#8C8676" stroke-width=".03"/>
+<rect x="4.530" y="14.330" width=".44" height=".44" fill="#FBFBF8" stroke="#7D7E72" stroke-width=".03"/>
+<rect x="4.530" y="16.030" width=".44" height=".44" fill="#FBFBF8" stroke="#7D7E72" stroke-width=".03"/>
+<rect x="5.180" y="14.330" width=".44" height=".44" fill="#FBFBF8" stroke="#7D7E72" stroke-width=".03"/>
+<rect x="5.180" y="16.030" width=".44" height=".44" fill="#FBFBF8" stroke="#7D7E72" stroke-width=".03"/>
+<rect x="5.830" y="14.330" width=".44" height=".44" fill="#FBFBF8" stroke="#7D7E72" stroke-width=".03"/>
+<rect x="5.830" y="16.030" width=".44" height=".44" fill="#FBFBF8" stroke="#7D7E72" stroke-width=".03"/>
+<circle cx="6.700" cy="7.750" r=".2" fill="#FBFBF8" stroke="#7D7E72" stroke-width=".03"/>
+<circle cx="6.700" cy="8.400" r=".2" fill="#FBFBF8" stroke="#7D7E72" stroke-width=".03"/>
+<circle cx="6.700" cy="9.050" r=".2" fill="#FBFBF8" stroke="#7D7E72" stroke-width=".03"/>
+<circle cx="8.900" cy="7.750" r=".2" fill="#FBFBF8" stroke="#7D7E72" stroke-width=".03"/>
+<circle cx="8.900" cy="8.400" r=".2" fill="#FBFBF8" stroke="#7D7E72" stroke-width=".03"/>
+<circle cx="8.900" cy="9.050" r=".2" fill="#FBFBF8" stroke="#7D7E72" stroke-width=".03"/>
+<circle cx="3.700" cy="6.600" r=".33" fill="#2E2A26"/>
+<rect x="0.000" y="0.000" width="4.200" height="0.200" fill="#2E2A26" />
+<rect x="11.400" y="0.000" width="4.200" height="0.200" fill="#2E2A26" />
+<rect x="0.000" y="-3.200" width="1.600" height="0.200" fill="#2E2A26" />
+<rect x="1.600" y="-3.150" width="1.200" height="0.100" fill="#8FB0BB" />
+<rect x="2.800" y="-3.200" width="2.200" height="0.200" fill="#2E2A26" />
+<rect x="5.000" y="-3.150" width="1.200" height="0.100" fill="#8FB0BB" />
+<rect x="6.200" y="-3.200" width="1.100" height="0.200" fill="#2E2A26" />
+<rect x="8.300" y="-3.200" width="1.100" height="0.200" fill="#2E2A26" />
+<rect x="9.400" y="-3.150" width="1.200" height="0.100" fill="#8FB0BB" />
+<rect x="10.600" y="-3.200" width="2.200" height="0.200" fill="#2E2A26" />
+<rect x="12.800" y="-3.150" width="1.200" height="0.100" fill="#8FB0BB" />
+<rect x="14.000" y="-3.200" width="1.600" height="0.200" fill="#2E2A26" />
+<rect x="0.000" y="-3.200" width="0.200" height="1.900" fill="#2E2A26" />
+<rect x="0.050" y="-1.300" width="0.100" height="0.800" fill="#8FB0BB" />
+<rect x="0.000" y="-0.500" width="0.200" height="0.500" fill="#2E2A26" />
+<rect x="15.400" y="-3.200" width="0.200" height="1.900" fill="#2E2A26" />
+<rect x="15.450" y="-1.300" width="0.100" height="0.800" fill="#8FB0BB" />
+<rect x="15.400" y="-0.500" width="0.200" height="0.500" fill="#2E2A26" />
+<rect x="4.200" y="-3.000" width="0.200" height="0.100" fill="#2E2A26" />
+<rect x="4.200" y="-2.000" width="0.200" height="2.000" fill="#2E2A26" />
+<rect x="11.200" y="-3.000" width="0.200" height="0.100" fill="#2E2A26" />
+<rect x="11.200" y="-2.000" width="0.200" height="2.000" fill="#2E2A26" />
+<rect x="4.400" y="-1.800" width="0.300" height="0.100" fill="#7D7E72" />
+<rect x="5.500" y="-1.800" width="0.500" height="0.100" fill="#7D7E72" />
+<rect x="9.600" y="-1.800" width="0.500" height="0.100" fill="#7D7E72" />
+<rect x="10.900" y="-1.800" width="0.300" height="0.100" fill="#7D7E72" />
+<rect x="4.400" y="0.250" width="1.600" height="0.100" fill="#7D7E72" />
+<rect x="9.600" y="0.250" width="1.600" height="0.100" fill="#7D7E72" />
+<rect x="0.000" y="5.400" width="0.300" height="0.200" fill="#2E2A26" />
+<rect x="0.300" y="5.450" width="1.000" height="0.100" fill="#8FB0BB" />
+<rect x="1.300" y="5.400" width="0.050" height="0.200" fill="#2E2A26" />
+<rect x="1.350" y="5.450" width="0.450" height="0.100" fill="#8FB0BB" />
+<rect x="1.800" y="5.400" width="2.400" height="0.200" fill="#2E2A26" />
+<rect x="11.400" y="5.400" width="2.400" height="0.200" fill="#2E2A26" />
+<rect x="13.800" y="5.450" width="0.450" height="0.100" fill="#8FB0BB" />
+<rect x="14.250" y="5.400" width="0.050" height="0.200" fill="#2E2A26" />
+<rect x="14.300" y="5.450" width="1.000" height="0.100" fill="#8FB0BB" />
+<rect x="15.300" y="5.400" width="0.300" height="0.200" fill="#2E2A26" />
+<rect x="2.800" y="12.200" width="2.600" height="0.200" fill="#2E2A26" />
+<rect x="5.400" y="12.250" width="4.800" height="0.100" fill="#8FB0BB" />
+<rect x="10.200" y="12.200" width="2.600" height="0.200" fill="#2E2A26" />
+<rect x="0.000" y="0.000" width="0.200" height="4.450" fill="#2E2A26" />
+<rect x="0.050" y="4.450" width="0.100" height="0.600" fill="#8FB0BB" />
+<rect x="0.000" y="5.050" width="0.200" height="0.550" fill="#2E2A26" />
+<rect x="15.400" y="0.000" width="0.200" height="4.450" fill="#2E2A26" />
+<rect x="15.450" y="4.450" width="0.100" height="0.600" fill="#8FB0BB" />
+<rect x="15.400" y="5.050" width="0.200" height="0.550" fill="#2E2A26" />
+<rect x="4.200" y="0.000" width="0.200" height="2.200" fill="#2E2A26" />
+<rect x="4.200" y="3.000" width="0.200" height="1.200" fill="#2E2A26" />
+<rect x="4.200" y="5.000" width="0.200" height="0.600" fill="#2E2A26" />
+<rect x="11.200" y="0.000" width="0.200" height="2.200" fill="#2E2A26" />
+<rect x="11.200" y="3.000" width="0.200" height="1.200" fill="#2E2A26" />
+<rect x="11.200" y="5.000" width="0.200" height="0.600" fill="#2E2A26" />
+<rect x="2.800" y="5.400" width="0.200" height="1.500" fill="#2E2A26" />
+<rect x="2.850" y="6.900" width="0.100" height="2.400" fill="#8FB0BB" />
+<rect x="2.800" y="9.300" width="0.200" height="0.700" fill="#2E2A26" />
+<rect x="2.850" y="10.000" width="0.100" height="1.800" fill="#8FB0BB" />
+<rect x="2.800" y="11.800" width="0.200" height="0.600" fill="#2E2A26" />
+<rect x="12.600" y="5.400" width="0.200" height="1.500" fill="#2E2A26" />
+<rect x="12.650" y="6.900" width="0.100" height="2.400" fill="#8FB0BB" />
+<rect x="12.600" y="9.300" width="0.200" height="0.700" fill="#2E2A26" />
+<rect x="12.650" y="10.000" width="0.100" height="1.800" fill="#8FB0BB" />
+<rect x="12.600" y="11.800" width="0.200" height="0.600" fill="#2E2A26" />
+<rect x="4.400" y="4.000" width="2.800" height="0.200" fill="#5D5A1E" />
+<rect x="8.400" y="4.000" width="2.800" height="0.200" fill="#5D5A1E" />
+<rect x="6.000" y="-1.800" width="0.100" height="5.800" fill="#7D7E72" />
+<rect x="9.500" y="-1.800" width="0.100" height="5.800" fill="#7D7E72" />
+<rect x="-0.100" y="8.500" width="0.200" height="0.200" fill="#7A5F3E" />
+<rect x="-0.100" y="12.750" width="0.200" height="0.200" fill="#7A5F3E" />
+<rect x="15.500" y="8.500" width="0.200" height="0.200" fill="#7A5F3E" />
+<rect x="15.500" y="12.750" width="0.200" height="0.200" fill="#7A5F3E" />
+<circle cx="2.650" cy="12.900" r=".25" fill="#B3AB98" stroke="#7D7E72" stroke-width=".03"/>
+<circle cx="12.950" cy="12.900" r=".25" fill="#B3AB98" stroke="#7D7E72" stroke-width=".03"/>
+<circle cx="-0.600" cy="5.600" r=".25" fill="#B3AB98" stroke="#7D7E72" stroke-width=".03"/>
+<circle cx="16.200" cy="5.600" r=".25" fill="#B3AB98" stroke="#7D7E72" stroke-width=".03"/>
+<g fill="none" stroke="#7D7E72" stroke-width=".03"><path d="M8.300 -3.000 A1.000 1.000 0 0 1 7.300 -2.000"/><line x1="7.300" y1="-3.000" x2="7.300" y2="-2.000"/><path d="M4.200 -2.000 A0.900 0.900 0 0 1 3.300 -2.900"/><line x1="4.200" y1="-2.900" x2="3.300" y2="-2.900"/><path d="M11.400 -2.000 A0.900 0.900 0 0 0 12.300 -2.900"/><line x1="11.400" y1="-2.900" x2="12.300" y2="-2.900"/><path d="M4.700 -1.700 A0.800 0.800 0 0 0 5.500 -0.900"/><path d="M10.100 -1.700 A0.800 0.800 0 0 0 10.900 -0.900"/><path d="M4.200 3.000 A0.800 0.800 0 0 1 3.400 2.200"/><line x1="4.200" y1="2.200" x2="3.400" y2="2.200"/><path d="M4.200 5.000 A0.800 0.800 0 0 1 3.400 4.200"/><line x1="4.200" y1="4.200" x2="3.400" y2="4.200"/><path d="M11.400 3.000 A0.800 0.800 0 0 0 12.200 2.200"/><line x1="11.400" y1="2.200" x2="12.200" y2="2.200"/><path d="M11.400 5.000 A0.800 0.800 0 0 0 12.200 4.200"/><line x1="11.400" y1="4.200" x2="12.200" y2="4.200"/></g>
+<line x1="7.8" y1="-0.1" x2="7.8" y2="13.0" stroke="#5D5A1E" stroke-width=".05" stroke-dasharray=".35 .12 .06 .12"/>
+<rect x="-0.6" y="-3.6" width="16.8" height="16.6" fill="none" stroke="#7A7566" stroke-width=".04" stroke-dasharray=".25 .18"/>
+<text x="2.200" y="-1.450" font-size="0.3" fill="#2A2B22" text-anchor="middle" font-weight="400">Recámara 3</text>
+<text x="2.200" y="-1.070" font-size="0.24" fill="#6B6C5E" text-anchor="middle" font-weight="400">4.00 × 3.00 · 12.0 m²</text>
+<text x="13.400" y="-1.450" font-size="0.3" fill="#2A2B22" text-anchor="middle" font-weight="400">Recámara 4</text>
+<text x="13.400" y="-1.070" font-size="0.24" fill="#6B6C5E" text-anchor="middle" font-weight="400">4.00 × 3.00 · 12.0 m²</text>
+<text x="7.800" y="-2.300" font-size="0.28" fill="#2A2B22" text-anchor="middle" font-weight="400">Vestíbulo</text>
+<text x="7.800" y="-1.920" font-size="0.24" fill="#6B6C5E" text-anchor="middle" font-weight="400">6.80 × 1.20</text>
+<text x="2.600" y="4.750" font-size="0.3" fill="#2A2B22" text-anchor="middle" font-weight="400">Suite principal</text>
+<text x="2.600" y="5.130" font-size="0.24" fill="#6B6C5E" text-anchor="middle" font-weight="400">4.00 × 5.20 · 20.8 m²</text>
+<text x="13.000" y="4.750" font-size="0.3" fill="#2A2B22" text-anchor="middle" font-weight="400">Suite 2</text>
+<text x="13.000" y="5.130" font-size="0.24" fill="#6B6C5E" text-anchor="middle" font-weight="400">4.00 × 5.20 · 20.8 m²</text>
+<text x="2.200" y="0.600" font-size="0.2" fill="#2A2B22" text-anchor="middle" font-weight="400">ropero 4.00 m</text>
+<text x="13.400" y="0.600" font-size="0.2" fill="#2A2B22" text-anchor="middle" font-weight="400">ropero 4.00 m</text>
+<text x="4.850" y="3.350" font-size="0.2" fill="#2A2B22" text-anchor="middle" font-weight="400">Baño</text>
+<text x="4.850" y="3.730" font-size="0.24" fill="#6B6C5E" text-anchor="middle" font-weight="400">1.60 × 3.60</text>
+<text x="10.750" y="3.350" font-size="0.2" fill="#2A2B22" text-anchor="middle" font-weight="400">Baño</text>
+<text x="10.750" y="3.730" font-size="0.24" fill="#6B6C5E" text-anchor="middle" font-weight="400">1.60 × 3.60</text>
+<text x="5.200" y="-1.050" font-size="0.18" fill="#2A2B22" text-anchor="middle" font-weight="400">Baño</text>
+<text x="5.200" y="-0.670" font-size="0.24" fill="#6B6C5E" text-anchor="middle" font-weight="400">1.60 × 1.95</text>
+<text x="10.100" y="-0.950" font-size="0.18" fill="#2A2B22" text-anchor="middle" font-weight="400">Lavandería</text>
+<text x="7.800" y="0.600" font-size="0.24" fill="#2A2B22" text-anchor="middle" font-weight="400">Paso</text>
+<text x="9.600" y="5.450" font-size="0.3" fill="#2A2B22" text-anchor="middle" font-weight="400">Cocina</text>
+<text x="7.800" y="11.600" font-size="0.34" fill="#2A2B22" text-anchor="middle" font-weight="500">Sala</text>
+<text x="7.800" y="11.980" font-size="0.24" fill="#6B6C5E" text-anchor="middle" font-weight="400">zona social 9.60 × 6.40 · 72 m²</text>
+<text x="7.800" y="13.650" font-size="0.32" fill="#F3F2EC" text-anchor="middle" font-weight="400">Terraza sur</text>
+<text x="7.800" y="14.030" font-size="0.24" fill="#CFCDC4" text-anchor="middle" font-weight="400">15.20 × 2.40 + 10.00 × 2.60</text>
+<text x="5.400" y="17.000" font-size="0.22" fill="#F3F2EC" text-anchor="middle" font-weight="400">comedor 6 personas</text>
+<text x="10.100" y="17.150" font-size="0.22" fill="#F3F2EC" text-anchor="middle" font-weight="400">sala exterior</text>
+<text x="1.500" y="6.400" font-size="0.26" fill="#F3F2EC" text-anchor="middle" font-weight="400">terraza</text>
+<text x="1.500" y="6.780" font-size="0.24" fill="#CFCDC4" text-anchor="middle" font-weight="400">2.60 × 6.80</text>
+<text x="14.100" y="6.400" font-size="0.26" fill="#F3F2EC" text-anchor="middle" font-weight="400">terraza</text>
+<text x="14.100" y="6.780" font-size="0.24" fill="#CFCDC4" text-anchor="middle" font-weight="400">2.60 × 6.80</text>
+<text x="7.800" y="5.620" font-size="0.2" fill="#2A2B22" text-anchor="middle" font-weight="400">isla 4.00 × 1.30</text>
+<text x="7.800" y="-3.800" font-size="0.26" fill="#6B6C5E" text-anchor="middle" font-weight="400">un solo techo a dos aguas, 23°</text>
+<text x="6.550" y="-0.400" font-size="0.16" fill="#2A2B22" text-anchor="middle" font-weight="400">abrigos</text>
+<text x="9.050" y="-0.400" font-size="0.16" fill="#2A2B22" text-anchor="middle" font-weight="400">blancos</text>
+<text x="6.550" y="2.650" font-size="0.16" fill="#2A2B22" text-anchor="middle" font-weight="400">despensa</text>
+<text x="9.050" y="2.650" font-size="0.16" fill="#2A2B22" text-anchor="middle" font-weight="400">despensa</text>
+<text x="7.800" y="-2.650" font-size="0.18" fill="#6B6C5E" text-anchor="middle" font-weight="400">puerta principal</text>
+<text x="2.000" y="12.750" font-size="0.27" fill="#7A5F3E" text-anchor="middle" font-weight="400">pérgola</text>
+<text x="13.600" y="12.750" font-size="0.27" fill="#7A5F3E" text-anchor="middle" font-weight="400">pérgola</text>
+<text x="9.500" y="4.550" font-size="0.2" fill="#2A2B22" text-anchor="middle" font-weight="400">refri + horno</text>
+<text x="5.150" y="4.820" font-size="0.2" fill="#5D5A1E" text-anchor="middle" font-weight="400">helicoidal</text>
+<text x="1.500" y="9.550" font-size="0.2" fill="#D9B85C" text-anchor="middle" font-weight="400">horizontal 2.40 × 0.90</text>
+<text x="14.100" y="9.550" font-size="0.2" fill="#D9B85C" text-anchor="middle" font-weight="400">horizontal 2.40 × 0.90</text>
+<text x="1.500" y="11.300" font-size="0.22" fill="#D9B85C" text-anchor="middle" font-weight="400">corrediza 1.80</text>
+<text x="14.100" y="11.300" font-size="0.22" fill="#D9B85C" text-anchor="middle" font-weight="400">corrediza 1.80</text>
+<text x="1.600" y="7.250" font-size="0.18" fill="#D9B85C" text-anchor="middle" font-weight="400">puerta vidrio 1.00 + fijo 0.45</text>
+<text x="14.000" y="7.250" font-size="0.18" fill="#D9B85C" text-anchor="middle" font-weight="400">puerta vidrio 1.00 + fijo 0.45</text>
+<text x="7.800" y="12.750" font-size="0.2" fill="#D9B85C" text-anchor="middle" font-weight="400">4 × 1.20 × 2.40</text>
+<g fill="none" stroke="#D9B85C" stroke-width=".03"><path d="M0.3 5.6 A1.0 1.0 0 0 0 1.3 6.6"/><line x1="0.3" y1="5.6" x2="0.3" y2="6.6"/><path d="M15.299999999999999 5.6 A1.0 1.0 0 0 1 14.299999999999999 6.6"/><line x1="15.299999999999999" y1="5.6" x2="15.299999999999999" y2="6.6"/></g>
+<g stroke="#6B6C5E" stroke-width=".03"><line x1="0" y1="18.1" x2="15.6" y2="18.1"/><line x1="0" y1="17.950000000000003" x2="0" y2="18.25"/><line x1="2.8" y1="17.950000000000003" x2="2.8" y2="18.25"/><line x1="12.8" y1="17.950000000000003" x2="12.8" y2="18.25"/><line x1="15.6" y1="17.950000000000003" x2="15.6" y2="18.25"/></g>
+<text x="1.400" y="17.980" font-size="0.26" fill="#6B6C5E" text-anchor="middle" font-weight="400">2.80</text>
+<text x="7.800" y="17.980" font-size="0.26" fill="#6B6C5E" text-anchor="middle" font-weight="400">10.00 zona social y terraza</text>
+<text x="14.200" y="17.980" font-size="0.26" fill="#6B6C5E" text-anchor="middle" font-weight="400">2.80</text>
+<g stroke="#6B6C5E" stroke-width=".03"><line x1="-1.5" y1="-3.2" x2="-1.5" y2="17.4"/><line x1="-1.65" y1="-3.2" x2="-1.35" y2="-3.2"/><line x1="-1.65" y1="0" x2="-1.35" y2="0"/><line x1="-1.65" y1="5.6" x2="-1.35" y2="5.6"/><line x1="-1.65" y1="12.4" x2="-1.35" y2="12.4"/><line x1="-1.65" y1="14.8" x2="-1.35" y2="14.8"/><line x1="-1.65" y1="17.4" x2="-1.35" y2="17.4"/></g>
+<text x="-1.68" y="-1.60" font-size=".26" fill="#6B6C5E" text-anchor="middle" transform="rotate(-90 -1.68 -1.60)">3.20</text>
+<text x="-1.68" y="2.80" font-size=".26" fill="#6B6C5E" text-anchor="middle" transform="rotate(-90 -1.68 2.80)">5.60</text>
+<text x="-1.68" y="9.00" font-size=".26" fill="#6B6C5E" text-anchor="middle" transform="rotate(-90 -1.68 9.00)">6.80</text>
+<text x="-1.68" y="13.60" font-size=".26" fill="#6B6C5E" text-anchor="middle" transform="rotate(-90 -1.68 13.60)">2.40</text>
+<text x="-1.68" y="16.10" font-size=".26" fill="#6B6C5E" text-anchor="middle" transform="rotate(-90 -1.68 16.10)">2.60</text>
+<g fill="none" stroke="#B39B3C" stroke-width=".06"><path d="M6.4 8.1 L2.5 8.1 M2.8 7.9 L2.5 8.1 L2.8 8.3"/><path d="M9.2 8.1 L13.1 8.1 M12.8 7.9 L13.1 8.1 L12.8 8.3"/></g>
+<circle cx="5.15" cy="5.75" r="0.7" fill="#EFE6D6" stroke="#5D5A1E" stroke-width=".04"/><circle cx="5.15" cy="5.75" r=".06" fill="#2B2C2A"/>
+<line x1="5.15" y1="5.75" x2="5.756" y2="5.400" stroke="#A47E52" stroke-width=".03"/>
+<line x1="5.15" y1="5.75" x2="5.845" y2="5.666" stroke="#A47E52" stroke-width=".03"/>
+<line x1="5.15" y1="5.75" x2="5.822" y2="5.945" stroke="#A47E52" stroke-width=".03"/>
+<line x1="5.15" y1="5.75" x2="5.692" y2="6.193" stroke="#A47E52" stroke-width=".03"/>
+<line x1="5.15" y1="5.75" x2="5.475" y2="6.370" stroke="#A47E52" stroke-width=".03"/>
+<line x1="5.15" y1="5.75" x2="5.206" y2="6.448" stroke="#A47E52" stroke-width=".03"/>
+<line x1="5.15" y1="5.75" x2="4.928" y2="6.414" stroke="#A47E52" stroke-width=".03"/>
+<line x1="5.15" y1="5.75" x2="4.686" y2="6.274" stroke="#A47E52" stroke-width=".03"/>
+<line x1="5.15" y1="5.75" x2="4.518" y2="6.050" stroke="#A47E52" stroke-width=".03"/>
+<line x1="5.15" y1="5.75" x2="4.451" y2="5.778" stroke="#A47E52" stroke-width=".03"/>
+<line x1="5.15" y1="5.75" x2="4.495" y2="5.502" stroke="#A47E52" stroke-width=".03"/>
+<line x1="5.15" y1="5.75" x2="4.645" y2="5.265" stroke="#A47E52" stroke-width=".03"/>
+<line x1="5.15" y1="5.75" x2="4.876" y2="5.106" stroke="#A47E52" stroke-width=".03"/>
+<line x1="5.15" y1="5.75" x2="5.150" y2="5.050" stroke="#A47E52" stroke-width=".03"/>
+<rect x="4.4" y="1.4" width="6.8" height="3.5999999999999996" fill="none" stroke="#5D5A1E" stroke-width=".06" stroke-dasharray=".3 .15"/>
+<text x="8.600" y="4.920" font-size="0.2" fill="#5D5A1E" text-anchor="middle" font-weight="400">mezzanine arriba (opción)</text></g><g stroke="#6B6C5E" fill="#6B6C5E" font-size="11" text-anchor="middle">
+<line x1="46" y1="34" x2="576.4" y2="34"/><line x1="46" y1="28" x2="46" y2="40"/><line x1="188.8" y1="28" x2="188.8" y2="40"/><line x1="433.6" y1="28" x2="433.6" y2="40"/><line x1="576.4" y1="28" x2="576.4" y2="40"/>
+<text x="117.4" y="26" stroke="none">4.20</text><text x="311.2" y="26" stroke="none">7.20 nave</text><text x="505.0" y="26" stroke="none">4.20</text>
+<line x1="617.2" y1="200.8" x2="617.2" y2="622.4000000000001"/><line x1="611.2" y1="200.8" x2="623.2" y2="200.8"/><line x1="611.2" y1="391.2" x2="623.2" y2="391.2"/><line x1="611.2" y1="622.4000000000001" x2="623.2" y2="622.4000000000001"/>
+<text x="631.2" y="296.0" stroke="none" transform="rotate(-90 631.2 296.0)">5.60</text>
+<text x="631.2" y="506.8" stroke="none" transform="rotate(-90 631.2 506.8)">+6.80</text></g>
+<g><line x1="20" y1="150" x2="20" y2="110" stroke="#5D5A1E" stroke-width="2"/><path d="M12 118 L20 104 L28 118 Z" fill="#5D5A1E"/><text x="20" y="96" text-anchor="middle" font-size="13" fill="#5D5A1E">N</text></g></svg>
+    <ul class="notes">
+      <li><b>Zona social ampliada.</b> Al sur de las suites, los muros laterales se recorren 1.40 m hacia afuera. La cocina-isla y la sala pasan de 6.80 a 9.60 m de ancho interior: unos 72 m² sociales, contra 54 m² antes. La isla sigue en el eje, la sala gana un sofá de 4.4 m con dos sillones, y la estufa de leña pasa a la esquina norponiente, junto a la escalera.</li>
+      <li><b>Corredizas de las recámaras en los extremos.</b> El cancel de 2.40 m de cada suite se recorre al extremo poniente u oriente y sale directo a la terraza. La parte interior de su muro sur ahora colinda con la zona social y queda ciega.</li>
+      <li><b>Ventanas según el clima.</b> Las cocinas-isla tienen ventanas horizontales de 2.40 × 0.90 m (antepecho a 1.00, dintel a 1.90), con la vista a la altura de quien está sentado o de pie. La sala tiene corredizas estándar de 1.80 × 2.10 m al oriente y al poniente. Cada recámara tiene una puerta de vidrio abatible de 1.00 × 2.10 m que abre hacia afuera, más un fijo de 0.45 m y una ventana lateral de 0.60 × 0.90. Toda la cancelería es de aluminio negro mate con doble vidrio claro bajo emisivo. Vidrio total: unos 43 m², contra 56 m² antes.</li>
+      <li><b>Terraza sur para 6 personas.</b> Frente a la sala, la terraza pasa de 2.40 a 5.00 m de fondo en todo el ancho de la zona social (10.00 m), unos 50 m² solo ahí. Cabe un comedor exterior de 2.20 × 1.00 m con 6 sillas y una sala exterior con sofá y dos sillones. Con las franjas laterales bajo las pérgolas (2.60 × 6.80 m), toda la terraza suma unos 98 m². El piso de todas las terrazas y del porche es de <b>laja negra de Amealco</b>, autorizada por el reglamento como «lajas oscuras» (6.3, pisos exteriores).</li>
+      <li><b>Suites de 20.8 m².</b> Cada suite ocupa toda el ala (4.00 × 5.20 m). La cama king tiene la cabecera en el muro exterior y dos burós. Queda 1.15 m libre frente al ropero, unos 2.0 m al pie de la cama y 1.5 m hacia la puerta de vidrio. El ropero corre a lo largo de todo el muro norte (4.00 × 0.60 m).</li>
+      <li><b>Baños de suite en el núcleo.</b> Cada suite entra a su baño de 1.60 × 3.60 m por una puerta en el muro de la nave. Tienen regadera de 1.40 × 1.00 m, WC y lavabo doble en línea. Son interiores: llevan extractor y tragaluz.</li>
+      <li><b>Servicios al mínimo.</b> El paso central de la entrada a la cocina está forrado de muebles de 0.90 m: despensa del lado de la cocina, abrigos y blancos del lado de la entrada. El baño compartido (1.60 × 1.95 m, con regadera de 0.80 × 0.80) y la lavandería (1.60 × 1.95 m) se abren al vestíbulo.</li>
+      <li><b>Recámaras 3 y 4.</b> Miden 4.00 × 3.00 m, con cama queen, ropero y dos ventanas. Salen al vestíbulo de la entrada.</li>
+      <li><b>Lo que cuesta.</b> Unos 58 m² más (la casa queda en unos 205 m², 7 paneles). Los baños de las suites pierden sus ventanas altas del norte: necesitan extractor y, de preferencia, un tragaluz sobre la regadera.</li>
+    </ul>
+  </div>
+  <div>
+    <div class="card">
+      <h2>Fachada sur</h2>
+      <svg viewBox="0 0 520 252" width="100%" role="img" aria-label="Fachada sur">
+        <line x1="10" y1="236" x2="510" y2="236" stroke="#7F8B4F" stroke-width="2"/>
+        <polygon points="51.6,222.5 51.6,147.5 127.2,111.9 127.2,222.5" fill="#EDEDE6"/><polygon points="397.2,222.5 397.2,111.9 472.8,147.5 472.8,222.5" fill="#EDEDE6"/>
+        <rect x="59.7" y="159.5" width="27" height="63" fill="#D5E2E6" stroke="#9A9C8C" stroke-width=".8"/><rect x="88.0" y="159.5" width="10.85" height="63" fill="#D5E2E6" stroke="#9A9C8C" stroke-width=".8"/>
+        <rect x="425.55" y="159.5" width="10.85" height="63" fill="#D5E2E6" stroke="#9A9C8C" stroke-width=".8"/><rect x="437.7" y="159.5" width="27" height="63" fill="#D5E2E6" stroke="#9A9C8C" stroke-width=".8"/>
+        <rect x="51.6" y="222.5" width="421.2" height="13.5" fill="#C9C1AE"/>
+        <polygon points="127.2,222.5 127.2,111.9 262.2,48.3 397.2,111.9 397.2,222.5" fill="#F3F2EC" stroke="#2E2A26" stroke-width="1"/>
+        <rect x="197.4" y="150.5" width="129.6" height="72" fill="#BFD4DA" stroke="#2E2A26" stroke-width="1"/>
+        <g stroke="#2E2A26" stroke-width="1"><line x1="229.8" y1="150.5" x2="229.8" y2="222.5"/><line x1="262.2" y1="150.5" x2="262.2" y2="222.5"/><line x1="294.6" y1="150.5" x2="294.6" y2="222.5"/></g>
+        <polygon points="197.4,129.5 327.0,129.5 327.0,89.3 262.2,61.8 197.4,89.3" fill="#BFD4DA" stroke="#2E2A26" stroke-width="1"/>
+        <g stroke="#2E2A26" stroke-width="1"><line x1="229.8" y1="129.5" x2="229.8" y2="74.1"/><line x1="262.2" y1="129.5" x2="262.2" y2="61.8"/><line x1="294.6" y1="129.5" x2="294.6" y2="74.1"/></g>
+        <polygon points="35.4,149.1 262.2,42.3 489,149.1 489,155.1 262.2,48.3 35.4,155.1" fill="#3A3B37"/>
+        <line x1="40" y1="156" x2="127.2" y2="115" stroke="#A47E52" stroke-width="2" stroke-dasharray="5 3"/><line x1="397.2" y1="115" x2="484" y2="156" stroke="#A47E52" stroke-width="2" stroke-dasharray="5 3"/>
+        <g fill="#6F7F4A"><circle cx="70" cy="146" r="5"/><circle cx="104" cy="130" r="5"/><circle cx="420" cy="130" r="5"/><circle cx="455" cy="146" r="5"/></g>
+        <rect x="49.6" y="155" width="4" height="81" fill="#7A5F3E"/><rect x="470.8" y="155" width="4" height="81" fill="#7A5F3E"/>
+        <line x1="500" y1="236" x2="500" y2="42.3" stroke="#6B6C5E"/><line x1="494" y1="42.3" x2="506" y2="42.3" stroke="#6B6C5E"/>
+        <g font-size="10" fill="#6B6C5E" text-anchor="middle">
+          <text x="262.2" y="182" fill="#2A2B22" font-size="10.5">sala</text>
+          <text x="92" y="246" font-size="8.5">recámara · 6.8 m atrás</text><text x="432" y="246" font-size="8.5">recámara 2 · 6.8 m atrás</text>
+          <text x="262.2" y="246" font-size="8.5">zona social 10.00 m</text>
+          <text x="84" y="108" fill="#7A5F3E">pérgola</text><text x="440" y="108" fill="#7A5F3E">pérgola</text>
+          <text x="262.2" y="34">cumbrera</text>
+          <text x="512" y="140" transform="rotate(-90 512 140)">≈ 6.5 m</text>
+        </g>
+      </svg>
+      <ul class="notes">
+        <li><b>Fachada M2.</b> Abajo, 4 módulos estándar de 1.20 × 2.40 m (2 corredizos al centro y 2 fijos). Arriba se conserva el trapecio de vidrio, con los parteluces alineados a los módulos de abajo. Vidrio al sur: unos 20 m², el mejor lugar para captar el sol de invierno.</li>
+        <li>Las recámaras, al fondo, tienen una puerta de vidrio de 1.00 m más un fijo de 0.45 m en su extremo exterior. Todo queda simétrico respecto a la cumbrera.</li>
+      </ul>
+    </div>
+    <div class="card" style="margin-top:20px">
+      <h2>Corte oeste–este por la isla</h2>
+      <svg viewBox="0 0 520 252" width="100%" role="img" aria-label="Corte por la isla">
+        <line x1="10" y1="236" x2="510" y2="236" stroke="#7F8B4F" stroke-width="2"/>
+        <g fill="none" stroke="#9A9C8C" stroke-dasharray="4 3"><polyline points="51.6,222.5 51.6,147.5 127.2,111.9"/><polyline points="472.8,222.5 472.8,147.5 397.2,111.9"/></g>
+        <rect x="127.2" y="222.5" width="270" height="13.5" fill="#CFCDC4"/>
+        <rect x="127.2" y="110.6" width="5.4" height="54.9" fill="#CFCDC4"/><rect x="127.2" y="192.5" width="5.4" height="30" fill="#CFCDC4"/><rect x="128.8" y="165.5" width="2.2" height="27" fill="#8FB0BB"/>
+        <rect x="391.8" y="110.6" width="5.4" height="54.9" fill="#CFCDC4"/><rect x="391.8" y="192.5" width="5.4" height="30" fill="#CFCDC4"/><rect x="393.4" y="165.5" width="2.2" height="27" fill="#8FB0BB"/>
+        <polygon points="127.2,105.9 262.2,42.3 397.2,105.9 397.2,111.9 262.2,48.3 127.2,111.9" fill="#3A3B37"/>
+        <g stroke="#A47E52" stroke-width="5" stroke-dasharray="3 4"><line x1="35.4" y1="152" x2="127.2" y2="109"/><line x1="397.2" y1="109" x2="489" y2="152"/></g>
+        <rect x="49.6" y="155" width="4" height="81" fill="#7A5F3E"/><rect x="470.8" y="155" width="4" height="81" fill="#7A5F3E"/>
+        <line x1="132.6" y1="110.6" x2="391.8" y2="110.6" stroke="#A47E52" stroke-width="4"/><line x1="262.2" y1="48.3" x2="262.2" y2="110.6" stroke="#A47E52" stroke-width="3"/>
+        <line x1="262.2" y1="72" x2="197" y2="110.6" stroke="#A47E52" stroke-width="2"/><line x1="262.2" y1="72" x2="327.4" y2="110.6" stroke="#A47E52" stroke-width="2"/>
+        <rect x="244.6" y="193.9" width="35.1" height="28.6" fill="#B89468"/>
+        <circle cx="232.5" cy="203" r="5" fill="#FBFBF8" stroke="#7D7E72"/><circle cx="291.9" cy="203" r="5" fill="#FBFBF8" stroke="#7D7E72"/>
+        <circle cx="232.5" cy="176" r="6" fill="none" stroke="#6B6C5E"/><circle cx="291.9" cy="176" r="6" fill="none" stroke="#6B6C5E"/>
+        <g stroke="#B39B3C" stroke-width="1.4" fill="none" stroke-dasharray="4 3"><path d="M226 176 L64 170"/><path d="M298 176 L460 170"/></g>
+        <g font-size="9.5" fill="#6B6C5E" text-anchor="middle">
+          <text x="262.2" y="30">un techo, 23°</text>
+          <text x="262.2" y="128" fill="#7A5F3E">armadura de madera, claro 10.0 m, tirante a 3.7 m</text>
+          <text x="62" y="104" fill="#7A5F3E">pérgola: 3.4 m</text><text x="462" y="104" fill="#7A5F3E">pérgola: 3.4 m</text>
+          <text x="35" y="250" font-size="8.5">viga y postes</text><text x="488" y="250" font-size="8.5">viga y postes</text>
+          <text x="90" y="190">vista oeste</text><text x="435" y="190">vista este</text>
+          <text x="262.2" y="216" fill="#2A2B22">isla</text><text x="262.2" y="248" font-size="8.5">zona social 9.60 m interior</text>
+        </g>
+      </svg>
+      <ul class="notes">
+        <li>Los muros laterales de la zona social se recorren 1.40 m hacia afuera. El techo sigue siendo el mismo plano a 23°: la armadura salva 10.0 m entre esos muros, con pendolón y tornapuntas de madera, y las vigas de pérgola bajan de 4.2 a 3.4 m de claro.</li>
+        <li>Las ventanas horizontales van de 1.00 a 1.90 m sobre el piso. Sentado en la isla, con el ojo a unos 1.40 m, ves el paisaje al centro de la ventana, y el seto de romero queda debajo.</li>
+      </ul>
+    </div>
+    <div class="card" style="margin-top:20px">
+      <h2>Mezzanine (opción)</h2>
+      <svg viewBox="0 0 250 470" width="100%" role="img" aria-label="Planta del mezzanine"><g transform="translate(14,40) scale(37) translate(-4.2,-1.0999999999999999)"><rect x="4.200" y="5.000" width="7.200" height="7.400" fill="#EEF2F0" />
+<text x="7.800" y="9.000" font-size="0.28" fill="#6B6C5E" text-anchor="middle" font-weight="400">vacío: isla y sala</text>
+<text x="7.800" y="9.450" font-size="0.28" fill="#6B6C5E" text-anchor="middle" font-weight="400">en doble altura</text>
+<text x="7.800" y="10.000" font-size="0.24" fill="#6B6C5E" text-anchor="middle" font-weight="400">vista al triángulo sur</text>
+<rect x="4.400" y="1.400" width="6.800" height="1.100" fill="#E9E2D2" />
+<rect x="4.400" y="2.600" width="6.800" height="2.400" fill="#F6F1E7" />
+<rect x="4.400" y="2.500" width="3.000" height="0.100" fill="#7D7E72" />
+<rect x="8.200" y="2.500" width="3.000" height="0.100" fill="#7D7E72" />
+<text x="7.800" y="1.950" font-size="0.24" fill="#2A2B22" text-anchor="middle" font-weight="500">Bodega / tapanco · 7.5 m²</text>
+<text x="7.800" y="2.300" font-size="0.2" fill="#6B6C5E" text-anchor="middle" font-weight="400">repisas a lo largo del muro norte</text>
+<circle cx="5.15" cy="5.75" r="0.7" fill="#EFE6D6" stroke="#5D5A1E" stroke-width=".04"/><circle cx="5.15" cy="5.75" r=".06" fill="#2B2C2A"/>
+<line x1="5.15" y1="5.75" x2="5.756" y2="5.400" stroke="#A47E52" stroke-width=".03"/>
+<line x1="5.15" y1="5.75" x2="5.845" y2="5.666" stroke="#A47E52" stroke-width=".03"/>
+<line x1="5.15" y1="5.75" x2="5.822" y2="5.945" stroke="#A47E52" stroke-width=".03"/>
+<line x1="5.15" y1="5.75" x2="5.692" y2="6.193" stroke="#A47E52" stroke-width=".03"/>
+<line x1="5.15" y1="5.75" x2="5.475" y2="6.370" stroke="#A47E52" stroke-width=".03"/>
+<line x1="5.15" y1="5.75" x2="5.206" y2="6.448" stroke="#A47E52" stroke-width=".03"/>
+<line x1="5.15" y1="5.75" x2="4.928" y2="6.414" stroke="#A47E52" stroke-width=".03"/>
+<line x1="5.15" y1="5.75" x2="4.686" y2="6.274" stroke="#A47E52" stroke-width=".03"/>
+<line x1="5.15" y1="5.75" x2="4.518" y2="6.050" stroke="#A47E52" stroke-width=".03"/>
+<line x1="5.15" y1="5.75" x2="4.451" y2="5.778" stroke="#A47E52" stroke-width=".03"/>
+<line x1="5.15" y1="5.75" x2="4.495" y2="5.502" stroke="#A47E52" stroke-width=".03"/>
+<line x1="5.15" y1="5.75" x2="4.645" y2="5.265" stroke="#A47E52" stroke-width=".03"/>
+<line x1="5.15" y1="5.75" x2="4.876" y2="5.106" stroke="#A47E52" stroke-width=".03"/>
+<line x1="5.15" y1="5.75" x2="5.150" y2="5.050" stroke="#A47E52" stroke-width=".03"/>
+<rect x="4.800" y="2.650" width="2.000" height="0.850" fill="#D9D2C2" stroke="#8C8676" stroke-width=".03"/>
+<rect x="4.800" y="2.650" width="2.000" height="1.950" fill="none" stroke="#8C8676" stroke-width=".03" stroke-dasharray=".12 .08"/>
+<rect x="10.750" y="2.700" width="0.400" height="1.200" fill="#B89468" />
+<rect x="11.100" y="2.900" width="0.060" height="0.800" fill="#2E2A26" />
+<rect x="9.400" y="4.200" width="1.400" height="0.600" fill="#B89468" />
+<rect x="4.200" y="1.200" width="0.200" height="11.200" fill="#2E2A26" />
+<rect x="11.200" y="1.200" width="0.200" height="11.200" fill="#2E2A26" />
+<rect x="4.200" y="1.200" width="7.200" height="0.200" fill="#2E2A26" />
+<rect x="4.200" y="12.200" width="7.200" height="0.200" fill="#8FB0BB" />
+<rect x="5.900" y="4.980" width="5.300" height="0.040" fill="#8FB0BB" />
+<text x="5.800" y="4.050" font-size="0.24" fill="#2A2B22" text-anchor="middle" font-weight="400">sofá cama</text>
+<text x="10.300" y="3.400" font-size="0.22" fill="#2A2B22" text-anchor="middle" font-weight="400">TV</text>
+<text x="10.100" y="4.580" font-size="0.2" fill="#2A2B22" text-anchor="middle" font-weight="400">escritorio</text>
+<text x="8.000" y="5.500" font-size="0.26" fill="#2A2B22" text-anchor="middle" font-weight="500">Sala de TV · 16.3 m²</text>
+<text x="5.150" y="6.750" font-size="0.2" fill="#5D5A1E" text-anchor="middle" font-weight="400">llegada</text></g><text x="10" y="24" font-size="14" fill="#5D5A1E">Nivel mezzanine (opción) · +2.60 m</text></svg>
+      <ul class="notes">
+        <li><b>Con este techo el mezzanine vuelve a funcionar:</b> 1.7 m de altura en los muros y 3.2 m al centro, con un tirante alto sobre él. La sala de TV mide 16.3 m² y la bodega 7.5 m². Con los dos, la casa llega a 229.1 m² y la regla 7.9 pide 7 paneles. Sin ellos, 205.3 m² y 7 paneles.</li>
+      </ul>
+    </div>
+    <div class="card" style="margin-top:20px">
+      <h2>Conjunto y áreas</h2>
+      <svg viewBox="0 0 370 560" width="100%" role="img" aria-label="Plano de conjunto"><defs><pattern id="stoneM" width="2.4" height="2" patternUnits="userSpaceOnUse"><g transform="scale(0.05)"><rect width="48" height="40" fill="#363733"/><g fill="none" stroke="#20211F" stroke-width="1.2"><path d="M0 14 L18 12 L22 0"/><path d="M18 12 L30 22 L48 18"/><path d="M30 22 L26 40"/><path d="M0 30 L14 28 L18 12"/><path d="M14 28 L10 40"/><path d="M38 0 L36 10 L48 8"/><path d="M36 10 L30 22"/><path d="M26 40 L40 30 L48 34"/></g></g></pattern></defs><rect x="30" y="30" width="275" height="484.0" fill="#DCE4CC" stroke="#5D5A1E" stroke-width="2"/>
+<rect x="57.5" y="85" width="220" height="396.0" fill="none" stroke="#9A9C8C" stroke-dasharray="4 4"/>
+<path d="M63 393 C85 376.5 134.5 382 140 404 S96 443.6 68.5 426 Z" fill="#A9C6C0" stroke="#6E9A93"/>
+<circle cx="79.5" cy="465.6" r="14.3" fill="#8FA35E" fill-opacity=".75"/>
+<circle cx="112.5" cy="465.6" r="14.3" fill="#8FA35E" fill-opacity=".75"/>
+<circle cx="145.5" cy="465.6" r="14.3" fill="#8FA35E" fill-opacity=".75"/>
+<circle cx="178.5" cy="465.6" r="14.3" fill="#8FA35E" fill-opacity=".75"/>
+<circle cx="211.5" cy="465.6" r="14.3" fill="#8FA35E" fill-opacity=".75"/>
+<circle cx="244.5" cy="465.6" r="14.3" fill="#8FA35E" fill-opacity=".75"/>
+<circle cx="96" cy="60.8" r="22.0" fill="#6F8A48" fill-opacity=".85"/>
+<circle cx="222.5" cy="398.5" r="16.5" fill="#6F8A48" fill-opacity=".85"/>
+<circle cx="272" cy="365.5" r="15.399999999999999" fill="#6F8A48" fill-opacity=".85"/>
+<rect x="219.2" y="30" width="59.400000000000006" height="66" fill="#C9C6BC" stroke="#9A9C8C"/><rect x="280.8" y="34.4" width="19.8" height="17.6" fill="#F3F2EC" stroke="#2E2A26"/>
+<circle cx="281.9" cy="131.2" r="12.100000000000001" fill="#8FB0BB" stroke="#2F6A82"/>
+<rect x="154.3" y="371.0" width="15.399999999999999" height="15.399999999999999" fill="#B9B4A8" stroke="#7D7E72"/>
+<circle cx="189.5" cy="343.5" r="9.9" fill="#C9B08A" stroke="#7A5F3E"/>
+<rect x="137.3" y="32.6" width="12" height="8" rx="2" fill="#D3CCBC" stroke="#B3AB98"/>
+<rect x="137.3" y="44.260000000000005" width="12" height="8" rx="2" fill="#D3CCBC" stroke="#B3AB98"/>
+<rect x="137.3" y="55.92000000000001" width="12" height="8" rx="2" fill="#D3CCBC" stroke="#B3AB98"/>
+<rect x="137.3" y="67.58000000000001" width="12" height="8" rx="2" fill="#D3CCBC" stroke="#B3AB98"/>
+<rect x="137.3" y="79.24000000000001" width="12" height="8" rx="2" fill="#D3CCBC" stroke="#B3AB98"/>
+<rect x="137.3" y="90.9" width="12" height="8" rx="2" fill="#D3CCBC" stroke="#B3AB98"/>
+<rect x="229.10000000000002" y="133.4" width="75.89999999999998" height="162.79999999999998" fill="#C8DDA8" stroke="none"/>
+<rect x="30" y="30" width="27.5" height="484.0" fill="none" stroke="#B5523B" stroke-width="1" stroke-dasharray="2 3"/>
+<circle cx="281.9" cy="135.6" r="12.100000000000001" fill="#8FB0BB" stroke="#2F6A82"/>
+<g transform="translate(57.5,133.4) scale(11)"><rect x="0.200" y="5.600" width="2.600" height="6.800" fill="url(#stoneM)" />
+<rect x="12.800" y="5.600" width="2.600" height="6.800" fill="url(#stoneM)" />
+<rect x="0.200" y="12.400" width="15.200" height="2.400" fill="url(#stoneM)" />
+<rect x="2.800" y="14.800" width="10.000" height="2.600" fill="url(#stoneM)" />
+<line x1="-0.600" y1="5.850" x2="2.800" y2="5.850" stroke="#A47E52" stroke-width=".05" stroke-opacity=".55"/>
+<line x1="-0.600" y1="6.250" x2="2.800" y2="6.250" stroke="#A47E52" stroke-width=".05" stroke-opacity=".55"/>
+<line x1="-0.600" y1="6.650" x2="2.800" y2="6.650" stroke="#A47E52" stroke-width=".05" stroke-opacity=".55"/>
+<line x1="-0.600" y1="7.050" x2="2.800" y2="7.050" stroke="#A47E52" stroke-width=".05" stroke-opacity=".55"/>
+<line x1="-0.600" y1="7.450" x2="2.800" y2="7.450" stroke="#A47E52" stroke-width=".05" stroke-opacity=".55"/>
+<line x1="-0.600" y1="7.850" x2="2.800" y2="7.850" stroke="#A47E52" stroke-width=".05" stroke-opacity=".55"/>
+<line x1="-0.600" y1="8.250" x2="2.800" y2="8.250" stroke="#A47E52" stroke-width=".05" stroke-opacity=".55"/>
+<line x1="-0.600" y1="8.650" x2="2.800" y2="8.650" stroke="#A47E52" stroke-width=".05" stroke-opacity=".55"/>
+<line x1="-0.600" y1="9.050" x2="2.800" y2="9.050" stroke="#A47E52" stroke-width=".05" stroke-opacity=".55"/>
+<line x1="-0.600" y1="9.450" x2="2.800" y2="9.450" stroke="#A47E52" stroke-width=".05" stroke-opacity=".55"/>
+<line x1="-0.600" y1="9.850" x2="2.800" y2="9.850" stroke="#A47E52" stroke-width=".05" stroke-opacity=".55"/>
+<line x1="-0.600" y1="10.250" x2="2.800" y2="10.250" stroke="#A47E52" stroke-width=".05" stroke-opacity=".55"/>
+<line x1="-0.600" y1="10.650" x2="2.800" y2="10.650" stroke="#A47E52" stroke-width=".05" stroke-opacity=".55"/>
+<line x1="-0.600" y1="11.050" x2="2.800" y2="11.050" stroke="#A47E52" stroke-width=".05" stroke-opacity=".55"/>
+<line x1="-0.600" y1="11.450" x2="2.800" y2="11.450" stroke="#A47E52" stroke-width=".05" stroke-opacity=".55"/>
+<line x1="-0.600" y1="11.850" x2="2.800" y2="11.850" stroke="#A47E52" stroke-width=".05" stroke-opacity=".55"/>
+<line x1="-0.600" y1="12.250" x2="2.800" y2="12.250" stroke="#A47E52" stroke-width=".05" stroke-opacity=".55"/>
+<line x1="-0.600" y1="12.650" x2="2.800" y2="12.650" stroke="#A47E52" stroke-width=".05" stroke-opacity=".55"/>
+<line x1="12.800" y1="5.850" x2="16.200" y2="5.850" stroke="#A47E52" stroke-width=".05" stroke-opacity=".55"/>
+<line x1="12.800" y1="6.250" x2="16.200" y2="6.250" stroke="#A47E52" stroke-width=".05" stroke-opacity=".55"/>
+<line x1="12.800" y1="6.650" x2="16.200" y2="6.650" stroke="#A47E52" stroke-width=".05" stroke-opacity=".55"/>
+<line x1="12.800" y1="7.050" x2="16.200" y2="7.050" stroke="#A47E52" stroke-width=".05" stroke-opacity=".55"/>
+<line x1="12.800" y1="7.450" x2="16.200" y2="7.450" stroke="#A47E52" stroke-width=".05" stroke-opacity=".55"/>
+<line x1="12.800" y1="7.850" x2="16.200" y2="7.850" stroke="#A47E52" stroke-width=".05" stroke-opacity=".55"/>
+<line x1="12.800" y1="8.250" x2="16.200" y2="8.250" stroke="#A47E52" stroke-width=".05" stroke-opacity=".55"/>
+<line x1="12.800" y1="8.650" x2="16.200" y2="8.650" stroke="#A47E52" stroke-width=".05" stroke-opacity=".55"/>
+<line x1="12.800" y1="9.050" x2="16.200" y2="9.050" stroke="#A47E52" stroke-width=".05" stroke-opacity=".55"/>
+<line x1="12.800" y1="9.450" x2="16.200" y2="9.450" stroke="#A47E52" stroke-width=".05" stroke-opacity=".55"/>
+<line x1="12.800" y1="9.850" x2="16.200" y2="9.850" stroke="#A47E52" stroke-width=".05" stroke-opacity=".55"/>
+<line x1="12.800" y1="10.250" x2="16.200" y2="10.250" stroke="#A47E52" stroke-width=".05" stroke-opacity=".55"/>
+<line x1="12.800" y1="10.650" x2="16.200" y2="10.650" stroke="#A47E52" stroke-width=".05" stroke-opacity=".55"/>
+<line x1="12.800" y1="11.050" x2="16.200" y2="11.050" stroke="#A47E52" stroke-width=".05" stroke-opacity=".55"/>
+<line x1="12.800" y1="11.450" x2="16.200" y2="11.450" stroke="#A47E52" stroke-width=".05" stroke-opacity=".55"/>
+<line x1="12.800" y1="11.850" x2="16.200" y2="11.850" stroke="#A47E52" stroke-width=".05" stroke-opacity=".55"/>
+<line x1="12.800" y1="12.250" x2="16.200" y2="12.250" stroke="#A47E52" stroke-width=".05" stroke-opacity=".55"/>
+<line x1="12.800" y1="12.650" x2="16.200" y2="12.650" stroke="#A47E52" stroke-width=".05" stroke-opacity=".55"/>
+<rect x="-1.000" y="5.800" width="0.800" height="9.000" fill="#B7C08A" />
+<circle cx="-0.800" cy="6.050" r=".16" fill="#9C8DB8"/>
+<circle cx="-0.400" cy="6.500" r=".16" fill="#9C8DB8"/>
+<circle cx="-0.800" cy="6.950" r=".16" fill="#9C8DB8"/>
+<circle cx="-0.400" cy="7.400" r=".16" fill="#9C8DB8"/>
+<circle cx="-0.800" cy="7.850" r=".16" fill="#9C8DB8"/>
+<circle cx="-0.400" cy="8.300" r=".16" fill="#9C8DB8"/>
+<circle cx="-0.800" cy="8.750" r=".16" fill="#9C8DB8"/>
+<circle cx="-0.400" cy="9.200" r=".16" fill="#9C8DB8"/>
+<circle cx="-0.800" cy="9.650" r=".16" fill="#9C8DB8"/>
+<circle cx="-0.400" cy="10.100" r=".16" fill="#9C8DB8"/>
+<circle cx="-0.800" cy="10.550" r=".16" fill="#9C8DB8"/>
+<circle cx="-0.400" cy="11.000" r=".16" fill="#9C8DB8"/>
+<circle cx="-0.800" cy="11.450" r=".16" fill="#9C8DB8"/>
+<circle cx="-0.400" cy="11.900" r=".16" fill="#9C8DB8"/>
+<circle cx="-0.800" cy="12.350" r=".16" fill="#9C8DB8"/>
+<circle cx="-0.400" cy="12.800" r=".16" fill="#9C8DB8"/>
+<circle cx="-0.800" cy="13.250" r=".16" fill="#9C8DB8"/>
+<circle cx="-0.400" cy="13.700" r=".16" fill="#9C8DB8"/>
+<circle cx="-0.800" cy="14.150" r=".16" fill="#9C8DB8"/>
+<circle cx="-0.400" cy="14.600" r=".16" fill="#9C8DB8"/>
+<rect x="15.800" y="5.800" width="0.800" height="9.000" fill="#B7C08A" />
+<circle cx="16.000" cy="6.050" r=".16" fill="#9C8DB8"/>
+<circle cx="16.400" cy="6.500" r=".16" fill="#9C8DB8"/>
+<circle cx="16.000" cy="6.950" r=".16" fill="#9C8DB8"/>
+<circle cx="16.400" cy="7.400" r=".16" fill="#9C8DB8"/>
+<circle cx="16.000" cy="7.850" r=".16" fill="#9C8DB8"/>
+<circle cx="16.400" cy="8.300" r=".16" fill="#9C8DB8"/>
+<circle cx="16.000" cy="8.750" r=".16" fill="#9C8DB8"/>
+<circle cx="16.400" cy="9.200" r=".16" fill="#9C8DB8"/>
+<circle cx="16.000" cy="9.650" r=".16" fill="#9C8DB8"/>
+<circle cx="16.400" cy="10.100" r=".16" fill="#9C8DB8"/>
+<circle cx="16.000" cy="10.550" r=".16" fill="#9C8DB8"/>
+<circle cx="16.400" cy="11.000" r=".16" fill="#9C8DB8"/>
+<circle cx="16.000" cy="11.450" r=".16" fill="#9C8DB8"/>
+<circle cx="16.400" cy="11.900" r=".16" fill="#9C8DB8"/>
+<circle cx="16.000" cy="12.350" r=".16" fill="#9C8DB8"/>
+<circle cx="16.400" cy="12.800" r=".16" fill="#9C8DB8"/>
+<circle cx="16.000" cy="13.250" r=".16" fill="#9C8DB8"/>
+<circle cx="16.400" cy="13.700" r=".16" fill="#9C8DB8"/>
+<circle cx="16.000" cy="14.150" r=".16" fill="#9C8DB8"/>
+<circle cx="16.400" cy="14.600" r=".16" fill="#9C8DB8"/>
+<rect x="0.000" y="0.000" width="4.200" height="5.600" fill="#FBFBF8" />
+<rect x="11.400" y="0.000" width="4.200" height="5.600" fill="#FBFBF8" />
+<rect x="4.200" y="1.200" width="7.200" height="11.200" fill="#FBFBF8" />
+<rect x="2.800" y="5.600" width="10.000" height="6.800" fill="#FBFBF8" />
+<rect x="0.000" y="-3.200" width="15.600" height="3.200" fill="#FBFBF8" />
+<rect x="4.200" y="0.000" width="7.200" height="1.200" fill="#FBFBF8" />
+<rect x="4.400" y="0.350" width="1.600" height="3.650" fill="#E3EBEC" />
+<rect x="9.600" y="0.350" width="1.600" height="3.650" fill="#E3EBEC" />
+<rect x="4.400" y="-1.700" width="1.600" height="1.950" fill="#E3EBEC" />
+<rect x="9.600" y="-1.700" width="1.600" height="1.950" fill="#E3EBEC" />
+<rect x="1.200" y="-2.200" width="1.600" height="2.000" fill="#D9D2C2" stroke="#8C8676" stroke-width=".03"/>
+<rect x="0.200" y="-2.800" width="0.600" height="1.300" fill="#B89468" stroke="#8C8676" stroke-width=".03"/>
+<rect x="0.700" y="-0.650" width="0.450" height="0.450" fill="#B89468" stroke="#8C8676" stroke-width=".03"/>
+<rect x="2.850" y="-0.650" width="0.450" height="0.450" fill="#B89468" stroke="#8C8676" stroke-width=".03"/>
+<rect x="12.800" y="-2.200" width="1.600" height="2.000" fill="#D9D2C2" stroke="#8C8676" stroke-width=".03"/>
+<rect x="14.800" y="-2.800" width="0.600" height="1.300" fill="#B89468" stroke="#8C8676" stroke-width=".03"/>
+<rect x="14.450" y="-0.650" width="0.450" height="0.450" fill="#B89468" stroke="#8C8676" stroke-width=".03"/>
+<rect x="12.300" y="-0.650" width="0.450" height="0.450" fill="#B89468" stroke="#8C8676" stroke-width=".03"/>
+<rect x="0.200" y="0.200" width="4.000" height="0.600" fill="#B89468" stroke="#8C8676" stroke-width=".03"/>
+<rect x="0.200" y="1.950" width="2.030" height="1.930" fill="#D9D2C2" stroke="#8C8676" stroke-width=".03"/>
+<rect x="0.200" y="1.450" width="0.450" height="0.450" fill="#B89468" stroke="#8C8676" stroke-width=".03"/>
+<rect x="0.200" y="3.930" width="0.450" height="0.450" fill="#B89468" stroke="#8C8676" stroke-width=".03"/>
+<rect x="11.400" y="0.200" width="4.000" height="0.600" fill="#B89468" stroke="#8C8676" stroke-width=".03"/>
+<rect x="13.370" y="1.950" width="2.030" height="1.930" fill="#D9D2C2" stroke="#8C8676" stroke-width=".03"/>
+<rect x="14.950" y="1.450" width="0.450" height="0.450" fill="#B89468" stroke="#8C8676" stroke-width=".03"/>
+<rect x="14.950" y="3.930" width="0.450" height="0.450" fill="#B89468" stroke="#8C8676" stroke-width=".03"/>
+<rect x="4.500" y="0.450" width="1.400" height="1.000" fill="#D9D2C2" stroke="#8C8676" stroke-width=".03"/>
+<rect x="5.350" y="1.650" width="0.600" height="0.600" fill="#D9D2C2" stroke="#8C8676" stroke-width=".03"/>
+<rect x="5.400" y="2.600" width="0.550" height="1.300" fill="#D9D2C2" stroke="#8C8676" stroke-width=".03"/>
+<rect x="9.700" y="0.450" width="1.400" height="1.000" fill="#D9D2C2" stroke="#8C8676" stroke-width=".03"/>
+<rect x="9.650" y="1.650" width="0.600" height="0.600" fill="#D9D2C2" stroke="#8C8676" stroke-width=".03"/>
+<rect x="9.650" y="2.600" width="0.550" height="1.300" fill="#D9D2C2" stroke="#8C8676" stroke-width=".03"/>
+<rect x="5.150" y="-0.600" width="0.800" height="0.800" fill="#D9D2C2" stroke="#8C8676" stroke-width=".03"/>
+<rect x="4.500" y="-0.350" width="0.550" height="0.550" fill="#D9D2C2" stroke="#8C8676" stroke-width=".03"/>
+<rect x="4.450" y="-1.350" width="0.450" height="0.550" fill="#D9D2C2" stroke="#8C8676" stroke-width=".03"/>
+<rect x="9.700" y="-0.500" width="0.700" height="0.700" fill="#D9D2C2" stroke="#8C8676" stroke-width=".03"/>
+<rect x="10.450" y="-0.500" width="0.700" height="0.700" fill="#D9D2C2" stroke="#8C8676" stroke-width=".03"/>
+<rect x="10.600" y="-1.700" width="0.550" height="0.500" fill="#D9D2C2" stroke="#8C8676" stroke-width=".03"/>
+<rect x="6.100" y="-1.700" width="0.900" height="2.700" fill="#B89468" stroke="#8C8676" stroke-width=".03"/>
+<rect x="8.600" y="-1.700" width="0.900" height="2.700" fill="#B89468" stroke="#8C8676" stroke-width=".03"/>
+<rect x="6.100" y="1.300" width="0.900" height="2.650" fill="#B89468" stroke="#8C8676" stroke-width=".03"/>
+<rect x="8.600" y="1.300" width="0.900" height="2.650" fill="#B89468" stroke="#8C8676" stroke-width=".03"/>
+<rect x="8.600" y="4.200" width="1.800" height="0.600" fill="#C9C2B3" stroke="#8C8676" stroke-width=".03"/>
+<rect x="7.150" y="5.800" width="1.300" height="3.400" fill="#B89468" stroke="#8C8676" stroke-width=".03"/>
+<rect x="5.600" y="9.600" width="4.400" height="0.900" fill="#D9D2C2" stroke="#8C8676" stroke-width=".03"/>
+<rect x="7.000" y="10.750" width="1.600" height="0.450" fill="#B89468" stroke="#8C8676" stroke-width=".03"/>
+<rect x="4.300" y="11.300" width="0.700" height="0.700" fill="#D9D2C2" stroke="#8C8676" stroke-width=".03"/>
+<rect x="10.600" y="11.300" width="0.700" height="0.700" fill="#D9D2C2" stroke="#8C8676" stroke-width=".03"/>
+<rect x="7.350" y="5.950" width="0.900" height="0.800" fill="none" stroke="#2E2A26" stroke-width=".03"/>
+<circle cx="7.6" cy="6.2" r=".14" fill="none" stroke="#2E2A26" stroke-width=".03"/><circle cx="8.0" cy="6.5" r=".14" fill="none" stroke="#2E2A26" stroke-width=".03"/>
+<rect x="7.400" y="6.900" width="0.800" height="0.400" fill="#8FB0BB" />
+<rect x="4.300" y="14.900" width="2.200" height="1.000" fill="#B89468" stroke="#8C8676" stroke-width=".03"/>
+<rect x="8.900" y="14.900" width="2.400" height="0.800" fill="#D9D2C2" stroke="#8C8676" stroke-width=".03"/>
+<rect x="9.500" y="16.000" width="1.200" height="0.500" fill="#B89468" stroke="#8C8676" stroke-width=".03"/>
+<rect x="8.600" y="16.600" width="0.700" height="0.700" fill="#D9D2C2" stroke="#8C8676" stroke-width=".03"/>
+<rect x="10.900" y="16.600" width="0.700" height="0.700" fill="#D9D2C2" stroke="#8C8676" stroke-width=".03"/>
+<rect x="4.530" y="14.330" width=".44" height=".44" fill="#FBFBF8" stroke="#7D7E72" stroke-width=".03"/>
+<rect x="4.530" y="16.030" width=".44" height=".44" fill="#FBFBF8" stroke="#7D7E72" stroke-width=".03"/>
+<rect x="5.180" y="14.330" width=".44" height=".44" fill="#FBFBF8" stroke="#7D7E72" stroke-width=".03"/>
+<rect x="5.180" y="16.030" width=".44" height=".44" fill="#FBFBF8" stroke="#7D7E72" stroke-width=".03"/>
+<rect x="5.830" y="14.330" width=".44" height=".44" fill="#FBFBF8" stroke="#7D7E72" stroke-width=".03"/>
+<rect x="5.830" y="16.030" width=".44" height=".44" fill="#FBFBF8" stroke="#7D7E72" stroke-width=".03"/>
+<circle cx="6.700" cy="7.750" r=".2" fill="#FBFBF8" stroke="#7D7E72" stroke-width=".03"/>
+<circle cx="6.700" cy="8.400" r=".2" fill="#FBFBF8" stroke="#7D7E72" stroke-width=".03"/>
+<circle cx="6.700" cy="9.050" r=".2" fill="#FBFBF8" stroke="#7D7E72" stroke-width=".03"/>
+<circle cx="8.900" cy="7.750" r=".2" fill="#FBFBF8" stroke="#7D7E72" stroke-width=".03"/>
+<circle cx="8.900" cy="8.400" r=".2" fill="#FBFBF8" stroke="#7D7E72" stroke-width=".03"/>
+<circle cx="8.900" cy="9.050" r=".2" fill="#FBFBF8" stroke="#7D7E72" stroke-width=".03"/>
+<circle cx="3.700" cy="6.600" r=".33" fill="#2E2A26"/>
+<rect x="0.000" y="0.000" width="4.200" height="0.200" fill="#2E2A26" />
+<rect x="11.400" y="0.000" width="4.200" height="0.200" fill="#2E2A26" />
+<rect x="0.000" y="-3.200" width="1.600" height="0.200" fill="#2E2A26" />
+<rect x="1.600" y="-3.150" width="1.200" height="0.100" fill="#8FB0BB" />
+<rect x="2.800" y="-3.200" width="2.200" height="0.200" fill="#2E2A26" />
+<rect x="5.000" y="-3.150" width="1.200" height="0.100" fill="#8FB0BB" />
+<rect x="6.200" y="-3.200" width="1.100" height="0.200" fill="#2E2A26" />
+<rect x="8.300" y="-3.200" width="1.100" height="0.200" fill="#2E2A26" />
+<rect x="9.400" y="-3.150" width="1.200" height="0.100" fill="#8FB0BB" />
+<rect x="10.600" y="-3.200" width="2.200" height="0.200" fill="#2E2A26" />
+<rect x="12.800" y="-3.150" width="1.200" height="0.100" fill="#8FB0BB" />
+<rect x="14.000" y="-3.200" width="1.600" height="0.200" fill="#2E2A26" />
+<rect x="0.000" y="-3.200" width="0.200" height="1.900" fill="#2E2A26" />
+<rect x="0.050" y="-1.300" width="0.100" height="0.800" fill="#8FB0BB" />
+<rect x="0.000" y="-0.500" width="0.200" height="0.500" fill="#2E2A26" />
+<rect x="15.400" y="-3.200" width="0.200" height="1.900" fill="#2E2A26" />
+<rect x="15.450" y="-1.300" width="0.100" height="0.800" fill="#8FB0BB" />
+<rect x="15.400" y="-0.500" width="0.200" height="0.500" fill="#2E2A26" />
+<rect x="4.200" y="-3.000" width="0.200" height="0.100" fill="#2E2A26" />
+<rect x="4.200" y="-2.000" width="0.200" height="2.000" fill="#2E2A26" />
+<rect x="11.200" y="-3.000" width="0.200" height="0.100" fill="#2E2A26" />
+<rect x="11.200" y="-2.000" width="0.200" height="2.000" fill="#2E2A26" />
+<rect x="4.400" y="-1.800" width="0.300" height="0.100" fill="#7D7E72" />
+<rect x="5.500" y="-1.800" width="0.500" height="0.100" fill="#7D7E72" />
+<rect x="9.600" y="-1.800" width="0.500" height="0.100" fill="#7D7E72" />
+<rect x="10.900" y="-1.800" width="0.300" height="0.100" fill="#7D7E72" />
+<rect x="4.400" y="0.250" width="1.600" height="0.100" fill="#7D7E72" />
+<rect x="9.600" y="0.250" width="1.600" height="0.100" fill="#7D7E72" />
+<rect x="0.000" y="5.400" width="0.300" height="0.200" fill="#2E2A26" />
+<rect x="0.300" y="5.450" width="1.000" height="0.100" fill="#8FB0BB" />
+<rect x="1.300" y="5.400" width="0.050" height="0.200" fill="#2E2A26" />
+<rect x="1.350" y="5.450" width="0.450" height="0.100" fill="#8FB0BB" />
+<rect x="1.800" y="5.400" width="2.400" height="0.200" fill="#2E2A26" />
+<rect x="11.400" y="5.400" width="2.400" height="0.200" fill="#2E2A26" />
+<rect x="13.800" y="5.450" width="0.450" height="0.100" fill="#8FB0BB" />
+<rect x="14.250" y="5.400" width="0.050" height="0.200" fill="#2E2A26" />
+<rect x="14.300" y="5.450" width="1.000" height="0.100" fill="#8FB0BB" />
+<rect x="15.300" y="5.400" width="0.300" height="0.200" fill="#2E2A26" />
+<rect x="2.800" y="12.200" width="2.600" height="0.200" fill="#2E2A26" />
+<rect x="5.400" y="12.250" width="4.800" height="0.100" fill="#8FB0BB" />
+<rect x="10.200" y="12.200" width="2.600" height="0.200" fill="#2E2A26" />
+<rect x="0.000" y="0.000" width="0.200" height="4.450" fill="#2E2A26" />
+<rect x="0.050" y="4.450" width="0.100" height="0.600" fill="#8FB0BB" />
+<rect x="0.000" y="5.050" width="0.200" height="0.550" fill="#2E2A26" />
+<rect x="15.400" y="0.000" width="0.200" height="4.450" fill="#2E2A26" />
+<rect x="15.450" y="4.450" width="0.100" height="0.600" fill="#8FB0BB" />
+<rect x="15.400" y="5.050" width="0.200" height="0.550" fill="#2E2A26" />
+<rect x="4.200" y="0.000" width="0.200" height="2.200" fill="#2E2A26" />
+<rect x="4.200" y="3.000" width="0.200" height="1.200" fill="#2E2A26" />
+<rect x="4.200" y="5.000" width="0.200" height="0.600" fill="#2E2A26" />
+<rect x="11.200" y="0.000" width="0.200" height="2.200" fill="#2E2A26" />
+<rect x="11.200" y="3.000" width="0.200" height="1.200" fill="#2E2A26" />
+<rect x="11.200" y="5.000" width="0.200" height="0.600" fill="#2E2A26" />
+<rect x="2.800" y="5.400" width="0.200" height="1.500" fill="#2E2A26" />
+<rect x="2.850" y="6.900" width="0.100" height="2.400" fill="#8FB0BB" />
+<rect x="2.800" y="9.300" width="0.200" height="0.700" fill="#2E2A26" />
+<rect x="2.850" y="10.000" width="0.100" height="1.800" fill="#8FB0BB" />
+<rect x="2.800" y="11.800" width="0.200" height="0.600" fill="#2E2A26" />
+<rect x="12.600" y="5.400" width="0.200" height="1.500" fill="#2E2A26" />
+<rect x="12.650" y="6.900" width="0.100" height="2.400" fill="#8FB0BB" />
+<rect x="12.600" y="9.300" width="0.200" height="0.700" fill="#2E2A26" />
+<rect x="12.650" y="10.000" width="0.100" height="1.800" fill="#8FB0BB" />
+<rect x="12.600" y="11.800" width="0.200" height="0.600" fill="#2E2A26" />
+<rect x="4.400" y="4.000" width="2.800" height="0.200" fill="#5D5A1E" />
+<rect x="8.400" y="4.000" width="2.800" height="0.200" fill="#5D5A1E" />
+<rect x="6.000" y="-1.800" width="0.100" height="5.800" fill="#7D7E72" />
+<rect x="9.500" y="-1.800" width="0.100" height="5.800" fill="#7D7E72" />
+<rect x="-0.100" y="8.500" width="0.200" height="0.200" fill="#7A5F3E" />
+<rect x="-0.100" y="12.750" width="0.200" height="0.200" fill="#7A5F3E" />
+<rect x="15.500" y="8.500" width="0.200" height="0.200" fill="#7A5F3E" />
+<rect x="15.500" y="12.750" width="0.200" height="0.200" fill="#7A5F3E" />
+<circle cx="2.650" cy="12.900" r=".25" fill="#B3AB98" stroke="#7D7E72" stroke-width=".03"/>
+<circle cx="12.950" cy="12.900" r=".25" fill="#B3AB98" stroke="#7D7E72" stroke-width=".03"/>
+<circle cx="-0.600" cy="5.600" r=".25" fill="#B3AB98" stroke="#7D7E72" stroke-width=".03"/>
+<circle cx="16.200" cy="5.600" r=".25" fill="#B3AB98" stroke="#7D7E72" stroke-width=".03"/>
+<g fill="none" stroke="#7D7E72" stroke-width=".03"><path d="M8.300 -3.000 A1.000 1.000 0 0 1 7.300 -2.000"/><line x1="7.300" y1="-3.000" x2="7.300" y2="-2.000"/><path d="M4.200 -2.000 A0.900 0.900 0 0 1 3.300 -2.900"/><line x1="4.200" y1="-2.900" x2="3.300" y2="-2.900"/><path d="M11.400 -2.000 A0.900 0.900 0 0 0 12.300 -2.900"/><line x1="11.400" y1="-2.900" x2="12.300" y2="-2.900"/><path d="M4.700 -1.700 A0.800 0.800 0 0 0 5.500 -0.900"/><path d="M10.100 -1.700 A0.800 0.800 0 0 0 10.900 -0.900"/><path d="M4.200 3.000 A0.800 0.800 0 0 1 3.400 2.200"/><line x1="4.200" y1="2.200" x2="3.400" y2="2.200"/><path d="M4.200 5.000 A0.800 0.800 0 0 1 3.400 4.200"/><line x1="4.200" y1="4.200" x2="3.400" y2="4.200"/><path d="M11.400 3.000 A0.800 0.800 0 0 0 12.200 2.200"/><line x1="11.400" y1="2.200" x2="12.200" y2="2.200"/><path d="M11.400 5.000 A0.800 0.800 0 0 0 12.200 4.200"/><line x1="11.400" y1="4.200" x2="12.200" y2="4.200"/></g>
+<line x1="7.8" y1="-0.1" x2="7.8" y2="13.0" stroke="#5D5A1E" stroke-width=".05" stroke-dasharray=".35 .12 .06 .12"/>
+<rect x="-0.6" y="-3.6" width="16.8" height="16.6" fill="none" stroke="#7A7566" stroke-width=".04" stroke-dasharray=".25 .18"/>
+<text x="2.200" y="-1.450" font-size="0.3" fill="#2A2B22" text-anchor="middle" font-weight="400">Recámara 3</text>
+<text x="2.200" y="-1.070" font-size="0.24" fill="#6B6C5E" text-anchor="middle" font-weight="400">4.00 × 3.00 · 12.0 m²</text>
+<text x="13.400" y="-1.450" font-size="0.3" fill="#2A2B22" text-anchor="middle" font-weight="400">Recámara 4</text>
+<text x="13.400" y="-1.070" font-size="0.24" fill="#6B6C5E" text-anchor="middle" font-weight="400">4.00 × 3.00 · 12.0 m²</text>
+<text x="7.800" y="-2.300" font-size="0.28" fill="#2A2B22" text-anchor="middle" font-weight="400">Vestíbulo</text>
+<text x="7.800" y="-1.920" font-size="0.24" fill="#6B6C5E" text-anchor="middle" font-weight="400">6.80 × 1.20</text>
+<text x="2.600" y="4.750" font-size="0.3" fill="#2A2B22" text-anchor="middle" font-weight="400">Suite principal</text>
+<text x="2.600" y="5.130" font-size="0.24" fill="#6B6C5E" text-anchor="middle" font-weight="400">4.00 × 5.20 · 20.8 m²</text>
+<text x="13.000" y="4.750" font-size="0.3" fill="#2A2B22" text-anchor="middle" font-weight="400">Suite 2</text>
+<text x="13.000" y="5.130" font-size="0.24" fill="#6B6C5E" text-anchor="middle" font-weight="400">4.00 × 5.20 · 20.8 m²</text>
+<text x="2.200" y="0.600" font-size="0.2" fill="#2A2B22" text-anchor="middle" font-weight="400">ropero 4.00 m</text>
+<text x="13.400" y="0.600" font-size="0.2" fill="#2A2B22" text-anchor="middle" font-weight="400">ropero 4.00 m</text>
+<text x="4.850" y="3.350" font-size="0.2" fill="#2A2B22" text-anchor="middle" font-weight="400">Baño</text>
+<text x="4.850" y="3.730" font-size="0.24" fill="#6B6C5E" text-anchor="middle" font-weight="400">1.60 × 3.60</text>
+<text x="10.750" y="3.350" font-size="0.2" fill="#2A2B22" text-anchor="middle" font-weight="400">Baño</text>
+<text x="10.750" y="3.730" font-size="0.24" fill="#6B6C5E" text-anchor="middle" font-weight="400">1.60 × 3.60</text>
+<text x="5.200" y="-1.050" font-size="0.18" fill="#2A2B22" text-anchor="middle" font-weight="400">Baño</text>
+<text x="5.200" y="-0.670" font-size="0.24" fill="#6B6C5E" text-anchor="middle" font-weight="400">1.60 × 1.95</text>
+<text x="10.100" y="-0.950" font-size="0.18" fill="#2A2B22" text-anchor="middle" font-weight="400">Lavandería</text>
+<text x="7.800" y="0.600" font-size="0.24" fill="#2A2B22" text-anchor="middle" font-weight="400">Paso</text>
+<text x="9.600" y="5.450" font-size="0.3" fill="#2A2B22" text-anchor="middle" font-weight="400">Cocina</text>
+<text x="7.800" y="11.600" font-size="0.34" fill="#2A2B22" text-anchor="middle" font-weight="500">Sala</text>
+<text x="7.800" y="11.980" font-size="0.24" fill="#6B6C5E" text-anchor="middle" font-weight="400">zona social 9.60 × 6.40 · 72 m²</text>
+<text x="7.800" y="13.650" font-size="0.32" fill="#F3F2EC" text-anchor="middle" font-weight="400">Terraza sur</text>
+<text x="7.800" y="14.030" font-size="0.24" fill="#CFCDC4" text-anchor="middle" font-weight="400">15.20 × 2.40 + 10.00 × 2.60</text>
+<text x="5.400" y="17.000" font-size="0.22" fill="#F3F2EC" text-anchor="middle" font-weight="400">comedor 6 personas</text>
+<text x="10.100" y="17.150" font-size="0.22" fill="#F3F2EC" text-anchor="middle" font-weight="400">sala exterior</text>
+<text x="1.500" y="6.400" font-size="0.26" fill="#F3F2EC" text-anchor="middle" font-weight="400">terraza</text>
+<text x="1.500" y="6.780" font-size="0.24" fill="#CFCDC4" text-anchor="middle" font-weight="400">2.60 × 6.80</text>
+<text x="14.100" y="6.400" font-size="0.26" fill="#F3F2EC" text-anchor="middle" font-weight="400">terraza</text>
+<text x="14.100" y="6.780" font-size="0.24" fill="#CFCDC4" text-anchor="middle" font-weight="400">2.60 × 6.80</text>
+<text x="7.800" y="5.620" font-size="0.2" fill="#2A2B22" text-anchor="middle" font-weight="400">isla 4.00 × 1.30</text>
+<text x="7.800" y="-3.800" font-size="0.26" fill="#6B6C5E" text-anchor="middle" font-weight="400">un solo techo a dos aguas, 23°</text>
+<text x="6.550" y="-0.400" font-size="0.16" fill="#2A2B22" text-anchor="middle" font-weight="400">abrigos</text>
+<text x="9.050" y="-0.400" font-size="0.16" fill="#2A2B22" text-anchor="middle" font-weight="400">blancos</text>
+<text x="6.550" y="2.650" font-size="0.16" fill="#2A2B22" text-anchor="middle" font-weight="400">despensa</text>
+<text x="9.050" y="2.650" font-size="0.16" fill="#2A2B22" text-anchor="middle" font-weight="400">despensa</text>
+<text x="7.800" y="-2.650" font-size="0.18" fill="#6B6C5E" text-anchor="middle" font-weight="400">puerta principal</text>
+<text x="2.000" y="12.750" font-size="0.27" fill="#7A5F3E" text-anchor="middle" font-weight="400">pérgola</text>
+<text x="13.600" y="12.750" font-size="0.27" fill="#7A5F3E" text-anchor="middle" font-weight="400">pérgola</text>
+<text x="9.500" y="4.550" font-size="0.2" fill="#2A2B22" text-anchor="middle" font-weight="400">refri + horno</text>
+<text x="5.150" y="4.820" font-size="0.2" fill="#5D5A1E" text-anchor="middle" font-weight="400">helicoidal</text>
+<text x="1.500" y="9.550" font-size="0.2" fill="#D9B85C" text-anchor="middle" font-weight="400">horizontal 2.40 × 0.90</text>
+<text x="14.100" y="9.550" font-size="0.2" fill="#D9B85C" text-anchor="middle" font-weight="400">horizontal 2.40 × 0.90</text>
+<text x="1.500" y="11.300" font-size="0.22" fill="#D9B85C" text-anchor="middle" font-weight="400">corrediza 1.80</text>
+<text x="14.100" y="11.300" font-size="0.22" fill="#D9B85C" text-anchor="middle" font-weight="400">corrediza 1.80</text>
+<text x="1.600" y="7.250" font-size="0.18" fill="#D9B85C" text-anchor="middle" font-weight="400">puerta vidrio 1.00 + fijo 0.45</text>
+<text x="14.000" y="7.250" font-size="0.18" fill="#D9B85C" text-anchor="middle" font-weight="400">puerta vidrio 1.00 + fijo 0.45</text>
+<text x="7.800" y="12.750" font-size="0.2" fill="#D9B85C" text-anchor="middle" font-weight="400">4 × 1.20 × 2.40</text>
+<g fill="none" stroke="#D9B85C" stroke-width=".03"><path d="M0.3 5.6 A1.0 1.0 0 0 0 1.3 6.6"/><line x1="0.3" y1="5.6" x2="0.3" y2="6.6"/><path d="M15.299999999999999 5.6 A1.0 1.0 0 0 1 14.299999999999999 6.6"/><line x1="15.299999999999999" y1="5.6" x2="15.299999999999999" y2="6.6"/></g>
+<g stroke="#6B6C5E" stroke-width=".03"><line x1="0" y1="18.1" x2="15.6" y2="18.1"/><line x1="0" y1="17.950000000000003" x2="0" y2="18.25"/><line x1="2.8" y1="17.950000000000003" x2="2.8" y2="18.25"/><line x1="12.8" y1="17.950000000000003" x2="12.8" y2="18.25"/><line x1="15.6" y1="17.950000000000003" x2="15.6" y2="18.25"/></g>
+<text x="1.400" y="17.980" font-size="0.26" fill="#6B6C5E" text-anchor="middle" font-weight="400">2.80</text>
+<text x="7.800" y="17.980" font-size="0.26" fill="#6B6C5E" text-anchor="middle" font-weight="400">10.00 zona social y terraza</text>
+<text x="14.200" y="17.980" font-size="0.26" fill="#6B6C5E" text-anchor="middle" font-weight="400">2.80</text>
+<g stroke="#6B6C5E" stroke-width=".03"><line x1="-1.5" y1="-3.2" x2="-1.5" y2="17.4"/><line x1="-1.65" y1="-3.2" x2="-1.35" y2="-3.2"/><line x1="-1.65" y1="0" x2="-1.35" y2="0"/><line x1="-1.65" y1="5.6" x2="-1.35" y2="5.6"/><line x1="-1.65" y1="12.4" x2="-1.35" y2="12.4"/><line x1="-1.65" y1="14.8" x2="-1.35" y2="14.8"/><line x1="-1.65" y1="17.4" x2="-1.35" y2="17.4"/></g>
+<text x="-1.68" y="-1.60" font-size=".26" fill="#6B6C5E" text-anchor="middle" transform="rotate(-90 -1.68 -1.60)">3.20</text>
+<text x="-1.68" y="2.80" font-size=".26" fill="#6B6C5E" text-anchor="middle" transform="rotate(-90 -1.68 2.80)">5.60</text>
+<text x="-1.68" y="9.00" font-size=".26" fill="#6B6C5E" text-anchor="middle" transform="rotate(-90 -1.68 9.00)">6.80</text>
+<text x="-1.68" y="13.60" font-size=".26" fill="#6B6C5E" text-anchor="middle" transform="rotate(-90 -1.68 13.60)">2.40</text>
+<text x="-1.68" y="16.10" font-size=".26" fill="#6B6C5E" text-anchor="middle" transform="rotate(-90 -1.68 16.10)">2.60</text>
+<g fill="none" stroke="#B39B3C" stroke-width=".06"><path d="M6.4 8.1 L2.5 8.1 M2.8 7.9 L2.5 8.1 L2.8 8.3"/><path d="M9.2 8.1 L13.1 8.1 M12.8 7.9 L13.1 8.1 L12.8 8.3"/></g>
+<circle cx="5.15" cy="5.75" r="0.7" fill="#EFE6D6" stroke="#5D5A1E" stroke-width=".04"/><circle cx="5.15" cy="5.75" r=".06" fill="#2B2C2A"/>
+<line x1="5.15" y1="5.75" x2="5.756" y2="5.400" stroke="#A47E52" stroke-width=".03"/>
+<line x1="5.15" y1="5.75" x2="5.845" y2="5.666" stroke="#A47E52" stroke-width=".03"/>
+<line x1="5.15" y1="5.75" x2="5.822" y2="5.945" stroke="#A47E52" stroke-width=".03"/>
+<line x1="5.15" y1="5.75" x2="5.692" y2="6.193" stroke="#A47E52" stroke-width=".03"/>
+<line x1="5.15" y1="5.75" x2="5.475" y2="6.370" stroke="#A47E52" stroke-width=".03"/>
+<line x1="5.15" y1="5.75" x2="5.206" y2="6.448" stroke="#A47E52" stroke-width=".03"/>
+<line x1="5.15" y1="5.75" x2="4.928" y2="6.414" stroke="#A47E52" stroke-width=".03"/>
+<line x1="5.15" y1="5.75" x2="4.686" y2="6.274" stroke="#A47E52" stroke-width=".03"/>
+<line x1="5.15" y1="5.75" x2="4.518" y2="6.050" stroke="#A47E52" stroke-width=".03"/>
+<line x1="5.15" y1="5.75" x2="4.451" y2="5.778" stroke="#A47E52" stroke-width=".03"/>
+<line x1="5.15" y1="5.75" x2="4.495" y2="5.502" stroke="#A47E52" stroke-width=".03"/>
+<line x1="5.15" y1="5.75" x2="4.645" y2="5.265" stroke="#A47E52" stroke-width=".03"/>
+<line x1="5.15" y1="5.75" x2="4.876" y2="5.106" stroke="#A47E52" stroke-width=".03"/>
+<line x1="5.15" y1="5.75" x2="5.150" y2="5.050" stroke="#A47E52" stroke-width=".03"/>
+<rect x="4.4" y="1.4" width="6.8" height="3.5999999999999996" fill="none" stroke="#5D5A1E" stroke-width=".06" stroke-dasharray=".3 .15"/>
+<text x="8.600" y="4.920" font-size="0.2" fill="#5D5A1E" text-anchor="middle" font-weight="400">mezzanine arriba (opción)</text></g>
+<polyline points="229.1,133.4 305.0,133.4 305.0,296.2 229.1,296.2 229.1,195.0" fill="none" stroke="#7A5F3E" stroke-width="2.5" stroke-dasharray="6 3"/>
+<circle cx="256.6" cy="151.0" r="27.72" fill="#A8C07A" fill-opacity=".45" stroke="#6F8A48" stroke-dasharray="3 2"/>
+<circle cx="43.2" cy="198.3" r="3.3" fill="#7C8F6A"/>
+<circle cx="43.2" cy="203.5" r="3.3" fill="#7C8F6A"/>
+<circle cx="43.2" cy="208.6" r="3.3" fill="#7C8F6A"/>
+<circle cx="43.2" cy="213.8" r="3.3" fill="#7C8F6A"/>
+<circle cx="43.2" cy="218.9" r="3.3" fill="#7C8F6A"/>
+<circle cx="43.2" cy="224.1" r="3.3" fill="#7C8F6A"/>
+<circle cx="43.2" cy="229.2" r="3.3" fill="#7C8F6A"/>
+<circle cx="43.2" cy="234.4" r="3.3" fill="#7C8F6A"/>
+<circle cx="43.2" cy="239.5" r="3.3" fill="#7C8F6A"/>
+<circle cx="43.2" cy="244.7" r="3.3" fill="#7C8F6A"/>
+<circle cx="43.2" cy="249.8" r="3.3" fill="#7C8F6A"/>
+<circle cx="43.2" cy="255.0" r="3.3" fill="#7C8F6A"/>
+<circle cx="43.2" cy="260.1" r="3.3" fill="#7C8F6A"/>
+<circle cx="43.2" cy="265.3" r="3.3" fill="#7C8F6A"/>
+<circle cx="43.2" cy="270.4" r="3.3" fill="#7C8F6A"/>
+<circle cx="43.2" cy="275.6" r="3.3" fill="#7C8F6A"/>
+<circle cx="43.2" cy="280.7" r="3.3" fill="#7C8F6A"/>
+<circle cx="43.2" cy="285.9" r="3.3" fill="#7C8F6A"/>
+<circle cx="43.2" cy="291.0" r="3.3" fill="#7C8F6A"/>
+<circle cx="43.2" cy="296.2" r="3.3" fill="#7C8F6A"/>
+<circle cx="43.2" cy="296.2" r="3.3" fill="#7C8F6A"/>
+<circle cx="48.2" cy="296.2" r="3.3" fill="#7C8F6A"/>
+<circle cx="53.2" cy="296.2" r="3.3" fill="#7C8F6A"/>
+<circle cx="58.2" cy="296.2" r="3.3" fill="#7C8F6A"/>
+<circle cx="63.2" cy="296.2" r="3.3" fill="#7C8F6A"/>
+<circle cx="68.3" cy="296.2" r="3.3" fill="#7C8F6A"/>
+<circle cx="73.3" cy="296.2" r="3.3" fill="#7C8F6A"/>
+<circle cx="78.3" cy="296.2" r="3.3" fill="#7C8F6A"/>
+<circle cx="83.3" cy="296.2" r="3.3" fill="#7C8F6A"/>
+<circle cx="88.3" cy="296.2" r="3.3" fill="#7C8F6A"/>
+<circle cx="88.3" cy="296.2" r="3.3" fill="#7C8F6A"/>
+<circle cx="88.3" cy="301.9" r="3.3" fill="#7C8F6A"/>
+<circle cx="88.3" cy="307.6" r="3.3" fill="#7C8F6A"/>
+<circle cx="88.3" cy="313.4" r="3.3" fill="#7C8F6A"/>
+<circle cx="88.3" cy="319.1" r="3.3" fill="#7C8F6A"/>
+<circle cx="88.3" cy="324.8" r="3.3" fill="#7C8F6A"/>
+<text x="69.6" y="320.4" font-size="8" fill="#4F5040" text-anchor="middle">seto de romero 1.2 m</text><text x="69.6" y="329.4" font-size="8" fill="#4F5040" text-anchor="middle">(debajo de la vista)</text>
+<line x1="241.20000000000005" y1="133.4" x2="252.20000000000005" y2="133.4" stroke="#DCE4CC" stroke-width="4"/>
+<line x1="229.10000000000002" y1="243.39999999999998" x2="229.10000000000002" y2="254.39999999999998" stroke="#DCE4CC" stroke-width="4"/>
+<text x="267.1" y="232.4" font-size="10" font-weight="500" fill="#4F5040" text-anchor="middle">parque</text>
+<text x="267.1" y="244.4" font-size="10" font-weight="500" fill="#4F5040" text-anchor="middle">para perros</text>
+<text x="267.1" y="257.4" font-size="9" fill="#4F5040" text-anchor="middle">102 m² · 9.3%</text>
+<text x="246.7" y="144.4" font-size="8.5" fill="#7A5F3E" text-anchor="middle">portón</text>
+<text x="232.1" y="263.4" font-size="8.5" fill="#7A5F3E">portón</text>
+<text x="43.8" y="250.0" font-size="8.5" fill="#B5523B" text-anchor="middle" transform="rotate(-90 43.8 250.0)">colindancia 2.50 m</text>
+<text x="167.5" y="21.2" font-size="10" fill="#4F5040" text-anchor="middle">calle (frente 25.00 m)</text>
+<text x="248.9" y="109.2" font-size="10" fill="#4F5040" text-anchor="middle">2 cajones</text>
+<text x="281.9" y="156.5" font-size="10" fill="#4F5040" text-anchor="middle">cisterna</text>
+<text x="162.0" y="401.8" font-size="10" fill="#4F5040" text-anchor="middle">biodigestor</text>
+<text x="189.5" y="366.6" font-size="10" fill="#4F5040" text-anchor="middle">fogata</text>
+<text x="101.5" y="410.6" font-size="10" fill="#4F5040" text-anchor="middle">humedal</text>
+<text x="167.5" y="496.4" font-size="10" fill="#4F5040" text-anchor="middle">huerto y bosque comestible</text>
+<text x="186.2" y="63.0" font-size="10" fill="#4F5040" text-anchor="middle">árbol frontal</text>
+<text x="313" y="272" font-size="10" fill="#6B6C5E" transform="rotate(90 313 272)" text-anchor="middle">44.00 m</text>
+<text x="167.5" y="532.0" font-size="11" fill="#6B6C5E" text-anchor="middle">Lote 25.00 × 44.00 m = 1,100 m² (L-1 / L-2)</text>
+<g transform="translate(327,63) rotate(-11.7)"><line x1="0" y1="30" x2="0" y2="0" stroke="#5D5A1E" stroke-width="2"/><path d="M-7 10 L0 -4 L7 10 Z" fill="#5D5A1E"/><text x="0" y="-9" text-anchor="middle" font-size="12" fill="#5D5A1E">N</text></g></svg>
+      <ul class="notes">
+        <li><b>Casa al poniente.</b> La casa se recorrió al lado poniente, con su muro a 2.50 m de la colindancia (línea roja punteada). Los postes de la pérgola quedan sobre esa línea y el alero de 0.60 m entra en la restricción: hay que confirmar con Garden Village si se permite o acortar el alero.</li>
+        <li><b>Parque para perros al oriente.</b> Es la franja entre la suite 2 y la colindancia oriente, de 6.90 m de ancho, desde la línea norte de la casa hasta el final de la terraza sur. Mide 102 m², el 9.3% del lote, muy por debajo del máximo de 20% (220 m²). Al frente y el jardín sur, con la terraza en U, el humedal, la fogata y el huerto, quedan libres de perros.</li>
+        <li><b>Accesos.</b> Un portón al norte da al estacionamiento, para sacar a pasear a los perros sin pasar por la casa. Otro portón al poniente da a la terraza de la pérgola oriente, frente a la corrediza de la sala: los dejas entrar cuando quieras. Adentro quedan un árbol de sombra y la cisterna, que es subterránea y lleva la tapa asegurada.</li>
+        <li><b>Viento sin tapar vistas.</b> No hay árboles altos frente a ninguna ventana. Las vistas al oriente y al poniente desde la isla, y al sur desde la sala y la terraza, quedan libres. Contra el viento del oeste de las tardes de invierno va un seto de romero de 1.2 m por el lado poniente y en la esquina suroeste de la terraza. Queda debajo del antepecho de las ventanas de barra (1.40 m sobre el terreno) y debajo de la vista de una persona sentada, y corta el viento a la altura del cuerpo.</li>
+        <li><b>Sombra para los perros.</b> Un solo árbol de hoja caduca al norte del parque, escondido detrás de la suite 2: no se ve desde la isla ni desde la sala.</li>
+        <li><b>Sombra de verano en la terraza:</b> con una sombrilla grande móvil sobre el comedor, sin estructura fija ni árboles en la vista.</li>
+        <li><b>Cerca.</b> Unos 38 m lineales de 1.20 m de alto, con malla borreguera enterrada 30 cm. Del lado de la casa usa los postes de la pérgola oriente.</li>
+      </ul>
+      <table>
+        <tr><td>Zona social: cocina, isla y sala</td><td>9.6 × 6.4 m + pasillo 6.8 × 1.6 m</td><td>72.3 m²</td></tr>
+        <tr><td>Suites 1 y 2, cama king (con ropero de 4 m)</td><td>4.0 × 5.2 m c/u</td><td>41.6 m²</td></tr>
+        <tr><td>2 baños de suite</td><td>1.6 × 3.6 m c/u</td><td>11.5 m²</td></tr>
+        <tr><td>Recámaras 3 y 4</td><td>4.0 × 3.0 m c/u</td><td>24.0 m²</td></tr>
+        <tr><td>Vestíbulo + paso con muebles (despensa, abrigos, blancos)</td><td>6.8 × 1.2 + 3.4 × 5.7 m</td><td>27.5 m²</td></tr>
+        <tr><td>Baño compartido + lavandería</td><td>1.6 × 1.95 m c/u</td><td>6.2 m²</td></tr>
+        <tr class="sum"><td>Construcción</td><td>muros incluidos</td><td>205.3 m²</td></tr>
+        <tr><td>Mezzanine TV (opción)</td><td>6.8 × 2.4 m</td><td>16.3 m²</td></tr>
+        <tr><td>Bodega en tapanco (junto al mezzanine)</td><td>6.8 × 1.1 m</td><td>7.5 m²</td></tr>
+        <tr><td>Terraza en U + terraza sur ampliada (piedra)</td><td>2 × 2.6 × 6.8 + 15.2 × 2.4 + 10.0 × 2.6</td><td>97.9 m²</td></tr>
+        <tr><td>Paneles, regla 7.9</td><td>sin / con mezzanine</td><td>7 / 7 × 525 W</td></tr>
+      </table>
+    </div>
+  </div>
+</main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function(){
+if(!window.THREE){document.getElementById('err').style.display='flex';return;}
+const DATA={"EXT": 3.2, "CYP": [], "DEC": [[20.6, 11.0, 0.9]], "HEDGE": [[1.2, 15.3], [1.2, 15.76842105263158], [1.2, 16.236842105263158], [1.2, 16.705263157894738], [1.2, 17.173684210526318], [1.2, 17.642105263157895], [1.2, 18.110526315789475], [1.2, 18.57894736842105], [1.2, 19.04736842105263], [1.2, 19.51578947368421], [1.2, 19.98421052631579], [1.2, 20.45263157894737], [1.2, 20.921052631578945], [1.2, 21.389473684210525], [1.2, 21.857894736842105], [1.2, 22.326315789473682], [1.2, 22.794736842105262], [1.2, 23.263157894736842], [1.2, 23.73157894736842], [1.2, 24.2], [1.2, 24.2], [1.6555555555555554, 24.2], [2.1111111111111107, 24.2], [2.5666666666666664, 24.2], [3.022222222222222, 24.2], [3.477777777777778, 24.2], [3.9333333333333327, 24.2], [4.388888888888888, 24.2], [4.844444444444444, 24.2], [5.3, 24.2], [5.3, 24.2], [5.3, 24.72], [5.3, 25.24], [5.3, 25.76], [5.3, 26.28], [5.3, 26.8]], "SX0": 2.8, "SX1": 12.8, "ES": 4.179600000000001, "DOGS": [[[18.1, 9.4], [19.200000000000003, 9.4]], [[20.200000000000003, 9.4], [25.0, 9.4]], [[25.0, 9.4], [25.0, 24.2]], [[25.0, 24.2], [18.1, 24.2]], [[18.1, 24.2], [18.1, 20.4]], [[18.1, 19.4], [18.1, 15.0]]], "GATES": [[[19.200000000000003, 9.4], [20.200000000000003, 9.4]], [[18.1, 19.4], [18.1, 20.4]]], "SI": {"bathfill": [0.2, 4.2, 0.2, 2.2], "wc": [3.1, 4.2, 0.2, 1.6], "shower": [0.2, 1.4, 0.2, 2.0], "vanity": [1.6, 3.0, 0.2, 0.75], "head": [0.2, 3.03, 2.2, 2.35], "wardrobe": [1.6, 3.0, 1.6, 2.2], "bed": [0.65, 2.58, 2.4, 4.43], "ns": [[0.2, 0.65], [2.58, 3.03]]}, "LOTD": 44.0, "NROT": -11.7, "H": {"m_north": [], "b_north": [], "n_north": [{"a": 1.6, "b": 2.8, "s": 1.35, "h": 2.5500000000000003}, {"a": 5.0, "b": 6.2, "s": 1.35, "h": 2.5500000000000003}, {"a": 7.3, "b": 8.3, "s": 0.45, "h": 2.75, "t": "door"}, {"a": 9.4, "b": 10.6, "s": 1.35, "h": 2.5500000000000003}, {"a": 12.8, "b": 14.0, "s": 1.35, "h": 2.5500000000000003}], "m_westN": [{"a": -1.3, "b": -0.5, "s": 1.35, "h": 2.5500000000000003}], "b_eastN": [{"a": -1.3, "b": -0.5, "s": 1.35, "h": 2.5500000000000003}], "m_in": [{"a": -2.9, "b": -2.0, "s": 0.45, "h": 2.6500000000000004, "t": "door"}], "b_in": [{"a": -2.9, "b": -2.0, "s": 0.45, "h": 2.6500000000000004, "t": "door"}], "hparts": [[-1.8, 4.4, 6.0, [[4.7, 5.5]]], [-1.8, 9.6, 11.2, [[10.1, 10.9]]], [0.25, 4.4, 6.0, []], [0.25, 9.6, 11.2, []]], "c_north": [{"a": 6.9, "b": 8.7, "s": 0.45, "h": 2.6500000000000004, "t": "open"}], "m_south": [{"a": 0.3, "b": 1.3, "s": 0.45, "h": 2.5500000000000003}, {"a": 1.35, "b": 1.8, "s": 0.45, "h": 2.5500000000000003}], "b_south": [{"a": 13.799999999999999, "b": 14.25, "s": 0.45, "h": 2.5500000000000003}, {"a": 14.299999999999999, "b": 15.299999999999999, "s": 0.45, "h": 2.5500000000000003}], "c_glass": [{"a": 5.4, "b": 10.2, "s": 0.45, "h": 2.85}], "c_poly": [[5.4, 3.5500000000000003], [10.2, 3.5500000000000003], [10.2, 4.889600000000001], [7.8, 5.8072], [5.4, 4.889600000000001]], "m_west": [{"a": 4.45, "b": 5.05, "s": 1.55, "h": 2.45}], "b_east": [{"a": 4.45, "b": 5.05, "s": 1.55, "h": 2.45}], "m_spine": [{"a": 0.4, "b": 1.2, "s": 0.45, "h": 2.5500000000000003, "t": "open"}, {"a": 3.2, "b": 4.0, "s": 0.45, "h": 2.5500000000000003, "t": "open"}], "b_spine": [{"a": 11.6, "b": 12.4, "s": 0.45, "h": 2.5500000000000003, "t": "open"}, {"a": 14.4, "b": 15.2, "s": 0.45, "h": 2.5500000000000003, "t": "open"}], "stone": [{"a": 7.2, "b": 8.4, "s": 0.45, "h": 2.75, "t": "open"}], "c_westN": [{"a": 2.2, "b": 3.0, "s": 0.45, "h": 2.6500000000000004, "t": "door"}, {"a": 4.2, "b": 5.0, "s": 0.45, "h": 2.6500000000000004, "t": "door"}], "c_eastN": [{"a": 2.2, "b": 3.0, "s": 0.45, "h": 2.6500000000000004, "t": "door"}, {"a": 4.2, "b": 5.0, "s": 0.45, "h": 2.6500000000000004, "t": "door"}], "c_westS": [{"a": 6.9, "b": 9.3, "s": 1.45, "h": 2.35}, {"a": 10.0, "b": 11.8, "s": 0.45, "h": 2.5500000000000003}], "c_eastS": [{"a": 6.9, "b": 9.3, "s": 1.45, "h": 2.35}, {"a": 10.0, "b": 11.8, "s": 0.45, "h": 2.5500000000000003}], "parts": [[6.0, -1.8, 4.0, []], [9.5, -1.8, 4.0, []]], "suites": [], "furn": [[1.2, 2.8, -2.2, -0.2, 0, 0.5, "f"], [0.2, 0.8, -2.8, -1.5, 0, 2.2, "w"], [0.7, 1.15, -0.65, -0.2, 0, 0.5, "w"], [2.85, 3.3, -0.65, -0.2, 0, 0.5, "w"], [12.8, 14.4, -2.2, -0.2, 0, 0.5, "f"], [14.799999999999999, 15.4, -2.8, -1.5, 0, 2.2, "w"], [14.45, 14.9, -0.65, -0.2, 0, 0.5, "w"], [12.3, 12.75, -0.65, -0.2, 0, 0.5, "w"], [0.2, 4.2, 0.2, 0.8, 0, 2.2, "w"], [0.2, 2.23, 1.95, 3.88, 0, 0.5, "f"], [0.2, 0.65, 1.45, 1.9, 0, 0.5, "w"], [0.2, 0.65, 3.93, 4.38, 0, 0.5, "w"], [11.399999999999999, 15.4, 0.2, 0.8, 0, 2.2, "w"], [13.37, 15.4, 1.95, 3.88, 0, 0.5, "f"], [14.95, 15.4, 1.45, 1.9, 0, 0.5, "w"], [14.95, 15.4, 3.93, 4.38, 0, 0.5, "w"], [4.5, 5.9, 0.45, 1.45, 0, 0.05, "f"], [5.35, 5.95, 1.65, 2.25, 0, 0.45, "f"], [5.4, 5.95, 2.6, 3.9, 0, 0.85, "f"], [9.7, 11.1, 0.45, 1.45, 0, 0.05, "f"], [9.649999999999999, 10.25, 1.65, 2.25, 0, 0.45, "f"], [9.649999999999999, 10.2, 2.6, 3.9, 0, 0.85, "f"], [5.15, 5.95, -0.6, 0.2, 0, 0.05, "f"], [4.5, 5.05, -0.35, 0.2, 0, 0.45, "f"], [4.45, 4.9, -1.35, -0.8, 0, 0.85, "f"], [9.7, 10.4, -0.5, 0.2, 0, 0.9, "f"], [10.45, 11.15, -0.5, 0.2, 0, 0.9, "f"], [10.6, 11.15, -1.7, -1.2, 0, 0.9, "f"], [6.1, 7.0, -1.7, 1.0, 0, 2.2, "w"], [8.6, 9.5, -1.7, 1.0, 0, 2.2, "w"], [6.1, 7.0, 1.3, 3.95, 0, 2.2, "w"], [8.6, 9.5, 1.3, 3.95, 0, 2.2, "w"], [8.6, 10.4, 4.2, 4.8, 0, 2.2, "f"], [7.15, 8.45, 5.8, 9.2, 0, 0.92, "w"], [5.6, 10.0, 9.6, 10.5, 0, 0.8, "f"], [7.0, 8.6, 10.75, 11.2, 0, 0.4, "w"], [4.3, 5.0, 11.3, 12.0, 0, 0.75, "f"], [10.6, 11.3, 11.3, 12.0, 0, 0.75, "f"]], "stools": [[6.7, 7.75], [6.7, 8.4], [6.7, 9.05], [8.9, 7.75], [8.9, 8.4], [8.9, 9.05]], "spiral": [5.15, 5.75, 0.7], "stove": [3.7, 6.6], "terraces": [[0.2, 2.8, 5.6, 12.4], [12.8, 15.4, 5.6, 12.4], [0.2, 15.4, 12.4, 14.8], [2.8, 12.8, 14.8, 17.4]], "tfurn": [[4.3, 6.5, 14.9, 15.9, 0, 0.75, "w"], [8.9, 11.3, 14.9, 15.7, 0, 0.7, "f"], [9.5, 10.7, 16.0, 16.5, 0, 0.4, "w"], [8.6, 9.3, 16.6, 17.3, 0, 0.7, "f"], [10.9, 11.6, 16.6, 17.3, 0, 0.7, "f"]], "tchairs": [[4.75, 14.55], [4.75, 16.25], [5.4, 14.55], [5.4, 16.25], [6.05, 14.55], [6.05, 16.25]], "beds": [[-1.0, -0.2, 5.8, 14.8], [15.799999999999999, 16.6, 5.8, 14.8]], "panels": [[5.2, 7.27, 2.6], [5.2, 7.27, 3.8], [8.33, 10.4, 2.6], [8.33, 10.4, 3.8]], "chains": [[2.65, 12.9], [12.950000000000001, 12.9], [-0.6, 5.6], [16.2, 5.6]], "posts": [[0.0, 8.6], [0.0, 12.85], [15.6, 8.6], [15.6, 12.85]], "ties": [6.4, 8.8, 11.2], "collars": [2.6, 3.8]}, "HX": 2.5, "HY": 9.4, "fd": [10.3, 5.9], "W": 15.6, "XC": 7.8, "NX0": 4.2, "NX1": 11.4, "WD": 5.6, "ND": 12.4, "NZ0": 1.2, "EAV": 2.95, "K": 0.424, "EN": 4.7732},H=DATA.H;
+const host=document.getElementById('viewer');
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const scene=new THREE.Scene();scene.background=new THREE.Color(0xDCE3E2);scene.fog=new THREE.Fog(0xDCE3E2,80,190);
+const camera=new THREE.PerspectiveCamera(40,1,0.1,500);
+const renderer=new THREE.WebGLRenderer({antialias:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.outputEncoding=THREE.sRGBEncoding;
+host.prepend(renderer.domElement);
+scene.add(new THREE.HemisphereLight(0xffffff,0x6b7040,0.65));
+const sun=new THREE.DirectionalLight(0xfff4e0,1.0);sun.position.set(8,30,24);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);
+Object.assign(sun.shadow.camera,{left:-30,right:30,top:30,bottom:-30,near:1,far:120});sun.shadow.bias=-0.0005;scene.add(sun);scene.add(sun.target);
+// ---- sun study: real sun position for Amealco (lat 20.19 N, lon 100.14 W, UTC-6, no daylight saving)
+const SUN={lat:20.19*Math.PI/180,lon:-100.14,tz:-6};
+const hemi=scene.children.find(o=>o.isHemisphereLight);
+const sunBall=new THREE.Mesh(new THREE.SphereGeometry(1.6,20,14),new THREE.MeshBasicMaterial({color:0xFFD27A,fog:false}));sunBall.userData.keepWorld=true;sun.target.userData.keepWorld=true;scene.add(sunBall);
+let sunPath=null;
+function solar(n,h){const g=2*Math.PI/365*(n-1+(h-12)/24);
+  const eq=229.18*(0.000075+0.001868*Math.cos(g)-0.032077*Math.sin(g)-0.014615*Math.cos(2*g)-0.040849*Math.sin(2*g));
+  const d=0.006918-0.399912*Math.cos(g)+0.070257*Math.sin(g)-0.006758*Math.cos(2*g)+0.000907*Math.sin(2*g)-0.002697*Math.cos(3*g)+0.00148*Math.sin(3*g);
+  const tst=h*60+eq+4*SUN.lon-60*SUN.tz, ha=(tst/4-180)*Math.PI/180;
+  const ce=Math.sin(SUN.lat)*Math.sin(d)+Math.cos(SUN.lat)*Math.cos(d)*Math.cos(ha), el=Math.asin(Math.max(-1,Math.min(1,ce)));
+  let az=Math.atan2(Math.sin(ha),Math.cos(ha)*Math.sin(SUN.lat)-Math.tan(d)*Math.cos(SUN.lat))+Math.PI;
+  return {el,az};}
+const sunDir=(el,az)=>new THREE.Vector3(Math.cos(el)*Math.sin(az),Math.sin(el),-Math.cos(el)*Math.cos(az));
+const cDay=new THREE.Color(0xDCE3E2),cDawn=new THREE.Color(0xE9C29A),cNight=new THREE.Color(0x232B3A);
+function dayOfYear(){const d=new Date(),s=new Date(d.getFullYear(),0,0);return Math.floor((d-s)/864e5);}
+function curDay(){const v=document.getElementById('sunDate').value;return v==='today'?dayOfYear():+v;}
+function drawPath(n){if(sunPath)scene.remove(sunPath);const pts=[];const g=new THREE.Group();
+  for(let h=4;h<=21;h+=0.1){const s=solar(n,h);if(s.el>0)pts.push(sunDir(s.el,s.az).multiplyScalar(48));}
+  if(pts.length>1){g.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts),new THREE.LineBasicMaterial({color:0xB39B3C,fog:false})));}
+  for(let h=5;h<=20;h++){const s=solar(n,h);if(s.el>0){const m=new THREE.Mesh(new THREE.SphereGeometry(.45,10,8),new THREE.MeshBasicMaterial({color:0xB39B3C,fog:false}));m.position.copy(sunDir(s.el,s.az).multiplyScalar(48));g.add(m);}}
+  g.userData.keepWorld=true;sunPath=g;scene.add(g);}
+const pad=x=>String(x).padStart(2,'0');
+const CARD=['N','NE','E','SE','S','SO','O','NO'];
+function setSun(){const n=curDay(),h=+document.getElementById('sunHour').value,s=solar(n,h);
+  const dir=sunDir(s.el,s.az);sun.position.copy(dir.clone().multiplyScalar(60));sun.target.position.set(0,0,0);
+  sunBall.position.copy(dir.clone().multiplyScalar(48));sunBall.visible=s.el>-0.02;
+  const k=Math.max(0,Math.sin(s.el));sun.intensity=Math.min(1.05,k*1.6);sun.castShadow=s.el>0.02;
+  sun.color.setHSL(0.09,0.9,0.55+0.4*Math.min(1,k*2.5));hemi.intensity=0.18+0.5*Math.min(1,k*2);
+  const elDeg=s.el*180/Math.PI;let sky;
+  if(elDeg<-6)sky=cNight.clone();else if(elDeg<6)sky=cNight.clone().lerp(cDawn,(elDeg+6)/12);else if(elDeg<16)sky=cDawn.clone().lerp(cDay,(elDeg-6)/10);else sky=cDay.clone();
+  scene.background.copy(sky);scene.fog.color.copy(sky);
+  const hh=Math.floor(h),mm=Math.round((h-hh)*60);document.getElementById('sunClock').textContent=pad(hh)+':'+pad(mm);
+  const bare=(n>=320||n<=75);(window.DECID||[]).forEach(c=>c.visible=!bare);
+  const azDeg=(s.az*180/Math.PI+360)%360;
+  document.getElementById('sunInfo').textContent=(elDeg>0?('altura '+Math.round(elDeg)+'° · desde el '+CARD[Math.round(azDeg/45)%8]+' ('+Math.round(azDeg)+'°)'):'sol bajo el horizonte')+(bare?' · caducos sin hoja':'');}
+document.getElementById('sunHour').addEventListener('input',setSun);
+document.getElementById('sunDate').addEventListener('change',()=>{drawPath(curDay());setSun();});
+let playT=null;const playBtn=document.getElementById('sunPlay');
+playBtn.addEventListener('click',()=>{if(playT){clearInterval(playT);playT=null;playBtn.setAttribute('aria-pressed','false');playBtn.textContent='▶ Día completo';return;}
+  const hr=document.getElementById('sunHour');if(+hr.value>=19.9)hr.value=5.5;playBtn.setAttribute('aria-pressed','true');playBtn.textContent='❚❚ Pausa';
+  playT=setInterval(()=>{const v=+hr.value+0.05;if(v>20){clearInterval(playT);playT=null;playBtn.setAttribute('aria-pressed','false');playBtn.textContent='▶ Día completo';return;}hr.value=v.toFixed(2);setSun();},60);});
+drawPath(curDay());setSun();
+const M=(c,o={})=>new THREE.MeshStandardMaterial(Object.assign({color:c,roughness:.85},o));
+function stoneTex(w,d,seed0,dark){
+  const c=document.createElement('canvas');c.width=c.height=512;const g=c.getContext('2d');g.fillStyle=dark?'#1C1D1B':'#A9A190';g.fillRect(0,0,512,512);
+  let seed=seed0||7;const rnd=()=>{seed=(seed*16807)%2147483647;return seed/2147483647;};const tones=dark?['#3A3B38','#333431','#42433F','#2E2F2C','#4A4B46']:['#CFC7B4','#C4BBA6','#D8D0BD','#BEB49D','#CBC2AE'];
+  for(let y=0;y<512;){const h=60+rnd()*70;for(let x=-rnd()*60;x<512;){const w2=70+rnd()*110;g.fillStyle=tones[Math.floor(rnd()*tones.length)];
+    g.beginPath();g.moveTo(x+4+rnd()*6,y+4+rnd()*5);g.lineTo(x+w2-4-rnd()*6,y+3+rnd()*6);g.lineTo(x+w2-3-rnd()*5,y+h-4-rnd()*6);g.lineTo(x+3+rnd()*6,y+h-3-rnd()*5);g.closePath();g.fill();x+=w2;}y+=h;}
+  const t=new THREE.CanvasTexture(c);t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(w/2.4,d/2.4);t.encoding=THREE.sRGBEncoding;return new THREE.MeshStandardMaterial({map:t,roughness:.95});}
+const mat={render:M(0xF3F2EC),plinth:M(0xCFCDC4),part:M(0xEDEDE6),
+  roof:M(0x3A3B37,{roughness:.55,metalness:.35}),frame:M(0x2E2A26,{roughness:.5,metalness:.4}),
+  glass:M(0x8FB0BB,{roughness:.08,metalness:.2,transparent:true,opacity:.35,side:THREE.DoubleSide}),wood:M(0xA47E52),furn:M(0xD9D2C2),
+  panel:M(0x1F2A3A,{roughness:.3,metalness:.5}),ground:M(0x7F8B4F,{roughness:1}),lot:M(0x8A9658,{roughness:1}),
+  steel:M(0x2B2C2A,{roughness:.45,metalness:.6}),spine:stoneTex(6,6,11),pavers:M(0xBDB9AE),
+  water:M(0x7FA4B4,{roughness:.1,metalness:.2}),reed:M(0x6E7F3E),leaf:M(0x4F5B2A,{flatShading:true}),leaf2:M(0x6F8A48,{flatShading:true}),
+  lav:M(0x9C8DB8,{flatShading:true}),bark:M(0x5A4632),car:M(0x6B6E70,{roughness:.4,metalness:.5}),bed:M(0x7E8A4E),vine:M(0x5E7A3A,{flatShading:true})};
+const EXT=DATA.EXT,FF=0.45,D=0.15,Wd=DATA.W,XC=DATA.XC,NX0=DATA.NX0,NX1=DATA.NX1,WD=DATA.WD,ND=DATA.ND,NZ0=DATA.NZ0,EAV=DATA.EAV,K=DATA.K;
+const r=x=>EAV+Math.min(x,Wd-x)*K, RID=r(XC), EN=r(NX0+0.1), SX0=DATA.SX0, SX1=DATA.SX1, ES=DATA.ES;
+const house=new THREE.Group();house.position.set(DATA.HX-12.5,0,DATA.HY-DATA.LOTD/2);scene.add(house);
+const roofG=new THREE.Group();house.add(roofG);
+let P=house;
+function box(x0,x1,y0,y1,z0,z1,m,parent){const me=new THREE.Mesh(new THREE.BoxGeometry(Math.abs(x1-x0),Math.abs(y1-y0),Math.abs(z1-z0)),m);
+  me.position.set((x0+x1)/2,(y0+y1)/2,(z0+z1)/2);me.castShadow=m!==mat.glass;me.receiveShadow=true;(parent||P).add(me);return me;}
+function slopeX(x0,ya,x1,yb,z0,z1,t,m,parent){const dx=x1-x0,dy=yb-ya,L=Math.hypot(dx,dy),a=Math.atan2(dy,dx);
+  const me=new THREE.Mesh(new THREE.BoxGeometry(L,t,z1-z0),m);me.rotation.z=a;
+  me.position.set((x0+x1)/2-Math.sin(a)*t/2,(ya+yb)/2+Math.cos(a)*t/2,(z0+z1)/2);me.castShadow=true;me.receiveShadow=true;(parent||P).add(me);return me;}
+function fill(op,axis,a0,a1){const m=(a0+a1)/2;if(op.t==='open')return;
+  if(op.t==='door'){axis==='x'?box(op.a,op.b,op.s,op.h,m-.03,m+.03,mat.wood):box(m-.03,m+.03,op.s,op.h,op.a,op.b,mat.wood);return;}
+  const n=Math.max(1,Math.round((op.b-op.a)/1.2));
+  if(axis==='x'){box(op.a,op.b,op.s,op.h,m-.02,m+.02,mat.glass);box(op.a,op.b,op.h-.05,op.h,a0,a1,mat.frame);box(op.a,op.b,op.s,op.s+.05,a0,a1,mat.frame);
+    for(let i=0;i<=n;i++){const x=op.a+(op.b-op.a)*i/n;box(x-.03,x+.03,op.s,op.h,m-.04,m+.04,mat.frame);}}
+  else{box(m-.02,m+.02,op.s,op.h,op.a,op.b,mat.glass);box(a0,a1,op.h-.05,op.h,op.a,op.b,mat.frame);box(a0,a1,op.s,op.s+.05,op.a,op.b,mat.frame);
+    for(let i=0;i<=n;i++){const z=op.a+(op.b-op.a)*i/n;box(m-.04,m+.04,op.s,op.h,z-.03,z+.03,mat.frame);}}}
+function wallZ(z0,z1,x0,x1,y0,y1,ops,m){let c=z0;ops.slice().sort((p,q)=>p.a-q.a).forEach(op=>{
+  if(op.a>c)box(x0,x1,y0,y1,c,op.a,m);if(op.s>y0)box(x0,x1,y0,op.s,op.a,op.b,m);if(op.h<y1)box(x0,x1,op.h,y1,op.a,op.b,m);fill(op,'z',x0,x1);c=op.b;});
+  if(c<z1)box(x0,x1,y0,y1,c,z1,m);}
+function shapeOf(pts,holes){const s=new THREE.Shape();s.moveTo(pts[0][0],pts[0][1]);pts.slice(1).forEach(p=>s.lineTo(p[0],p[1]));s.lineTo(pts[0][0],pts[0][1]);
+  holes.forEach(h=>{const p=new THREE.Path();const q=h.poly?h.poly:[[h.a,Math.max(h.s,FF+0.01)],[h.b,Math.max(h.s,FF+0.01)],[h.b,h.h],[h.a,h.h]];
+    p.moveTo(q[0][0],q[0][1]);q.slice(1).forEach(v=>p.lineTo(v[0],v[1]));p.lineTo(q[0][0],q[0][1]);s.holes.push(p);});return s;}
+function prismZ(z0,t,pts,holes,m){const me=new THREE.Mesh(new THREE.ExtrudeGeometry(shapeOf(pts,holes),{depth:t,bevelEnabled:false}),m);
+  me.position.z=z0;me.castShadow=true;me.receiveShadow=true;P.add(me);
+  holes.forEach(h=>{if(h.poly){const g=new THREE.Mesh(new THREE.ShapeGeometry(shapeOf(h.poly,[])),mat.glass);g.position.z=z0+t/2;P.add(g);}else fill(h,'x',z0,z0+t);});}
+
+
+// floor
+box(0,Wd,0,FF,-EXT,0,mat.plinth);box(NX0,NX1,0,FF,0,NZ0,mat.plinth);box(0,NX0,0,FF,0,WD,mat.plinth);box(NX1,Wd,0,FF,0,WD,mat.plinth);box(NX0,NX1,0,FF,NZ0,WD,mat.plinth);box(SX0,SX1,0,FF,WD,ND,mat.plinth);
+// walls: everything sits under one roof plane r(x)
+prismZ(0,0.2,[[0,FF],[0,r(0)],[NX0,r(NX0)],[NX0,FF]],H.m_north,mat.render);prismZ(0,0.2,[[NX1,FF],[NX1,r(NX1)],[Wd,r(Wd)],[Wd,FF]],H.b_north,mat.render);
+prismZ(WD-0.2,0.2,[[0,FF],[0,r(0)],[NX0,r(NX0)],[NX0,FF]],H.m_south,mat.render);prismZ(WD-0.2,0.2,[[NX1,FF],[NX1,r(NX1)],[Wd,r(Wd)],[Wd,FF]],H.b_south,mat.render);
+wallZ(0.2,WD-0.2,0,0.2,FF,r(0.1),H.m_west,mat.render);wallZ(0.2,WD-0.2,Wd-0.2,Wd,FF,r(Wd-0.1),H.b_east,mat.render);
+// vacation suites: open spa bath behind a headboard wall, WC enclosed, compact wardrobe
+H.suites.forEach(su=>{const m=su.mir?(x=>Wd-x):(x=>x);const bx=(a,b,y0,y1,z0,z1,mt)=>box(Math.min(m(a),m(b)),Math.max(m(a),m(b)),y0,y1,z0,z1,mt);
+  const S=DATA.SI,tile=M(0xE3EBEC);
+  bx(0.2,4.2,FF,FF+0.02,0.2,2.2,tile);
+  bx(0.2,3.03,FF,FF+2.2,2.2,2.35,mat.part);
+  bx(3.1,3.2,FF,FF+2.2,0.2,1.6,mat.part);bx(3.1,3.55,FF,FF+2.2,1.5,1.6,mat.part);bx(3.1,4.2,FF+2.2,FF+2.25,0.2,1.6,mat.part);
+  bx(1.4,1.44,FF,FF+2.0,0.2,1.9,mat.glass);bx(0.2,1.4,FF,FF+0.04,0.2,2.0,M(0xB9B4A8));
+  bx(1.6,3.0,FF,FF+0.9,0.2,0.75,mat.furn);bx(1.7,2.9,FF+1.3,FF+2.1,0.2,0.24,M(0xCFD9DC,{metalness:.6,roughness:.15}));
+  bx(1.6,3.0,FF,FF+2.2,1.6,2.2,mat.wood);
+  bx(0.65,2.58,FF,FF+0.5,2.40,4.43,mat.furn);bx(0.65,2.58,FF+0.5,FF+1.2,2.35,2.45,mat.wood);
+  bx(0.2,0.65,FF,FF+0.5,2.40,2.85,mat.wood);bx(2.58,3.03,FF,FF+0.5,2.40,2.85,mat.wood);});
+wallZ(0,WD-0.2,NX0,NX0+0.2,FF,EN,H.c_westN,mat.render);wallZ(0,WD-0.2,NX1-0.2,NX1,FF,EN,H.c_eastN,mat.render);
+wallZ(WD-0.2,ND,SX0,SX0+0.2,FF,ES,H.c_westS,mat.render);wallZ(WD-0.2,ND,SX1-0.2,SX1,FF,ES,H.c_eastS,mat.render);
+box(NX0,NX0+0.2,EN-0.2,EN,0,WD,M(0xB9B4A8));box(NX1-0.2,NX1,EN-0.2,EN,0,WD,M(0xB9B4A8));box(SX0,SX0+0.2,ES-0.2,ES,WD-0.2,ND,M(0xB9B4A8));box(SX1-0.2,SX1,ES-0.2,ES,WD-0.2,ND,M(0xB9B4A8));
+prismZ(-EXT,0.2,[[0,FF],[0,r(0)],[XC,RID],[Wd,r(Wd)],[Wd,FF]],H.n_north,mat.render);
+wallZ(-EXT+0.2,0,0,0.2,FF,r(0.1),H.m_westN,mat.render);wallZ(-EXT+0.2,0,Wd-0.2,Wd,FF,r(Wd-0.1),H.b_eastN,mat.render);
+wallZ(-EXT+0.2,0,NX0,NX0+0.2,FF,EN,H.m_in,mat.render);wallZ(-EXT+0.2,0,NX1-0.2,NX1,FF,EN,H.b_in,mat.render);
+H.hparts.forEach(([z,x0,x1,gaps])=>{let c=x0;gaps.forEach(([a,b])=>{box(c,a,FF,FF+2.35,z,z+.1,mat.part);box(a,b,FF+2.1,FF+2.35,z,z+.1,mat.part);c=b;});box(c,x1,FF,FF+2.35,z,z+.1,mat.part);});
+box(NX0+0.2,NX1-0.2,FF+2.6,FF+2.66,-EXT+0.2,NZ0,mat.part);
+prismZ(ND-0.2,0.2,[[SX0,FF],[SX0,r(SX0)],[XC,RID],[SX1,r(SX1)],[SX1,FF]],H.c_glass.concat([{poly:H.c_poly}]),mat.render);
+[6.6,XC,9.0].forEach(x=>box(x-.04,x+.04,FF+3.1,r(x)-0.35,ND-0.14,ND-0.06,mat.frame));
+(function(){let c=NX0+0.2;H.stone.forEach(o=>{box(c,o.a,FF,FF+2.35,4.0,4.2,mat.spine);box(o.a,o.b,o.h,FF+2.35,4.0,4.2,mat.spine);c=o.b;});box(c,NX1-0.2,FF,FF+2.35,4.0,4.2,mat.spine);})();
+H.parts.forEach(([x,z0,z1,g])=>{let c=z0;g.forEach(([a,b])=>{box(x,x+.1,FF,FF+2.35,c,a,mat.part);box(x,x+.1,FF+2.1,FF+2.35,a,b,mat.part);c=b;});box(x,x+.1,FF,FF+2.35,c,z1,mat.part);});
+box(NX0+0.2,NX1-0.2,FF+2.35,FF+2.4,-1.8,NZ0+0.2,mat.part);
+box(NX0+0.2,NX1-0.2,FF+2.35,FF+2.6,NZ0+0.2,4.2,mat.wood);
+H.furn.forEach(f=>box(f[0],f[1],FF+f[4],FF+f[5],f[2],f[3],f[6]==='w'?mat.wood:mat.furn));
+H.tfurn.forEach(f=>box(f[0],f[1],FF+f[4],FF+f[5],f[2],f[3],f[6]==='w'?mat.wood:mat.furn));H.tchairs.forEach(([x,z])=>box(x-.22,x+.22,FF,FF+0.45,z-.22,z+.22,mat.wood));
+box(7.22,8.38,FF,FF+0.88,5.85,8.4,mat.furn);box(7.35,8.25,FF+0.925,FF+0.935,5.95,6.75,M(0x111111,{roughness:.3}));
+H.stools.forEach(([x,z])=>{const s=new THREE.Mesh(new THREE.CylinderGeometry(.19,.16,.66,16),mat.steel);s.position.set(x,FF+.33,z);P.add(s);});
+{const [x,z]=H.stove;const s=new THREE.Mesh(new THREE.CylinderGeometry(.33,.33,1.0,24),mat.steel);s.position.set(x,FF+.5,z);s.castShadow=true;P.add(s);
+ const f=new THREE.Mesh(new THREE.CylinderGeometry(.08,.08,5.0,12),mat.steel);f.position.set(x,FF+3.0,z);P.add(f);}
+// exposed structure in the nave: rafters on the nave walls, low ties over the open part, high collars over the mezzanine
+for(let z=NZ0+0.4;z<ND-0.2;z+=1.2){const a=z<WD?NX0+0.2:SX0+0.2,b=Wd-a,e=r(a);slopeX(a,e,XC,RID,z-.04,z+.04,0.18,mat.wood);slopeX(XC,RID,b,e,z-.04,z+.04,0.18,mat.wood);}
+H.ties.forEach(z=>{box(SX0+0.2,SX1-0.2,ES-0.18,ES,z-.06,z+.06,mat.wood);box(XC-.06,XC+.06,ES,RID,z-.06,z+.06,mat.wood);});
+H.collars.forEach(z=>box(XC-1.85,XC+1.85,FF+5.0,FF+5.18,z-.06,z+.06,mat.wood));
+// mezzanine option + spiral
+const mezzG=new THREE.Group();house.add(mezzG);P=mezzG;
+const MF=FF+2.6;
+box(NX0+0.2,NX1-0.2,MF-.25,MF,4.2,5.0,mat.wood);
+(function(){const pp=P;P=mezzG;prismZ(2.5,0.1,[[NX0+0.2,MF],[NX0+0.2,r(NX0+0.2)],[XC,RID],[NX1-0.2,r(NX1-0.2)],[NX1-0.2,MF]],[{a:7.4,b:8.2,s:MF+0.01,h:MF+2.0,t:'door'}],mat.part);P=pp;})();
+box(NX0+0.3,NX1-0.3,MF+0.4,MF+0.43,NZ0+0.2,NZ0+0.6,mat.wood);box(NX0+0.3,NX1-0.3,MF+1.0,MF+1.03,NZ0+0.2,NZ0+0.6,mat.wood);box(NX0+0.2,NX1-0.2,MF-.5,MF-.25,4.94,5.06,mat.wood);
+box(5.9,NX1-0.2,MF,MF+1.0,4.98,5.02,mat.glass);box(5.9,NX1-0.2,MF+0.98,MF+1.03,4.96,5.04,mat.steel);
+box(4.8,6.8,MF,MF+0.45,2.65,3.5,mat.furn);box(4.8,6.8,MF+0.45,MF+0.85,2.65,2.8,mat.furn);
+box(9.4,10.8,MF+0.72,MF+0.76,4.2,4.8,mat.wood);
+{const [cx,cz,rr]=H.spiral;const pole=new THREE.Mesh(new THREE.CylinderGeometry(.05,.05,MF+1.0,12),mat.steel);pole.position.set(cx,(MF+1.0)/2+0.2,cz);P.add(pole);
+ for(let i=0;i<14;i++){const a=(-30+i*300/13)*Math.PI/180,y=FF+(i+1)*0.186;
+   const tr=new THREE.Mesh(new THREE.BoxGeometry(rr-0.06,.04,.3),mat.wood);tr.position.set(cx+Math.cos(a)*(rr/2),y-0.02,cz+Math.sin(a)*(rr/2));tr.rotation.y=-a;tr.castShadow=true;P.add(tr);
+   const bal=new THREE.Mesh(new THREE.CylinderGeometry(.012,.012,0.95,6),mat.steel);bal.position.set(cx+Math.cos(a)*(rr-0.05),y+0.47,cz+Math.sin(a)*(rr-0.05));P.add(bal);}}
+P=house;
+const mezzBtn=document.getElementById('mezzBtn');
+mezzBtn.addEventListener('click',()=>{mezzG.visible=!mezzG.visible;mezzBtn.setAttribute('aria-pressed',mezzG.visible);mezzBtn.textContent=mezzG.visible?'Mezzanine: sí':'Mezzanine: no';});
+// ONE roof plane: solid over rooms and porch, open timber pergola (same rafters, no sheeting) over the side patios
+slopeX(-0.6,r(-0.6),XC,RID,-EXT-0.4,WD,0.2,mat.roof,roofG);slopeX(XC,RID,Wd+0.6,r(Wd+0.6),-EXT-0.4,WD,0.2,mat.roof,roofG);
+slopeX(SX0,r(SX0),XC,RID,WD,ND+0.6,0.2,mat.roof,roofG);slopeX(XC,RID,SX1,r(SX1),WD,ND+0.6,0.2,mat.roof,roofG);
+box(XC-.15,XC+.15,RID+.17,RID+.3,-EXT-0.45,ND+0.65,mat.steel,roofG);
+for(let z=WD+0.15;z<ND+0.6;z+=0.4){slopeX(-0.6,r(-0.6),SX0,r(SX0),z,z+.07,0.2,mat.wood);slopeX(SX1,r(SX1),Wd+0.6,r(Wd+0.6),z,z+.07,0.2,mat.wood);}
+box(-0.12,0.12,r(0)-0.25,r(0),WD,ND+0.6,mat.wood);box(Wd-0.12,Wd+0.12,r(Wd)-0.25,r(Wd),WD,ND+0.6,mat.wood);
+H.posts.forEach(([x,z])=>box(x-.1,x+.1,0,r(x)-0.25,z-.1,z+.1,mat.wood));
+for(let i=0;i<48;i++){const x=0.3+((i*29)%23)/10,z=WD+0.4+((i*17)%66)/10;const v=new THREE.Mesh(new THREE.IcosahedronGeometry(.28,0),mat.vine);v.position.set(x,r(x)+0.2,z);P.add(v);
+  const v2=v.clone();v2.position.set(Wd-x,r(x)+0.2,z);P.add(v2);}
+box(-0.75,-0.55,r(-0.6)-.12,r(-0.6)+.04,-EXT-0.4,WD+0.1,mat.steel,roofG);box(Wd+0.55,Wd+0.75,r(-0.6)-.12,r(-0.6)+.04,-EXT-0.4,WD+0.1,mat.steel,roofG);
+box(SX0-0.15,SX0+0.05,r(SX0)-.12,r(SX0)+.04,WD,ND+0.6,mat.steel,roofG);box(SX1-0.05,SX1+0.15,r(SX1)-.12,r(SX1)+.04,WD,ND+0.6,mat.steel,roofG);
+H.panels.forEach(([x0,x1,z])=>slopeX(x0,r(x0)+.22,x1,r(x1)+.22,z,z+1.13,.04,mat.panel,roofG));
+H.chains.forEach(([x,z])=>{for(let y=r(x<Wd/2?Math.max(x,-0.6):Math.min(x,Wd+0.6))-0.15,i=0;y>0.5;y-=0.11,i++){const l=new THREE.Mesh(new THREE.TorusGeometry(.045,.012,6,12),mat.steel);l.position.set(x,y,z);l.rotation.y=i%2?Math.PI/2:0;P.add(l);}
+  const b=new THREE.Mesh(new THREE.CylinderGeometry(.38,.44,.4,20),stoneTex(1,1,5));b.position.set(x,.2,z);P.add(b);});
+H.terraces.forEach((t,i)=>box(t[0],t[1],0.25,FF,t[2],t[3],stoneTex(t[1]-t[0],t[3]-t[2],i*5+3,true)));
+H.beds.forEach(b=>{box(b[0],b[1],0,0.3,b[2],b[3],mat.bed);for(let z=b[2]+.25;z<b[3]-.1;z+=.4){[b[0]+0.3,b[1]-0.3].forEach((x,j)=>{const s=new THREE.Mesh(new THREE.IcosahedronGeometry(.2,0),((z*10|0)+j)%3?mat.lav:mat.leaf2);s.position.set(x,.48,z);P.add(s);});}});
+// site
+const W=(x,y)=>[x-12.5,y-DATA.LOTD/2];P=scene;
+function seg(p,q,y0,y1,th,m){const [x0,z0]=W(p[0],p[1]),[x1,z1]=W(q[0],q[1]);const L=Math.hypot(x1-x0,z1-z0);
+  const me=new THREE.Mesh(new THREE.BoxGeometry(L,y1-y0,th),m);me.position.set((x0+x1)/2,(y0+y1)/2,(z0+z1)/2);me.rotation.y=-Math.atan2(z1-z0,x1-x0);me.castShadow=true;scene.add(me);}
+const ground=new THREE.Mesh(new THREE.PlaneGeometry(300,300),mat.ground);ground.rotation.x=-Math.PI/2;ground.receiveShadow=true;scene.add(ground);
+const lot=new THREE.Mesh(new THREE.PlaneGeometry(25,DATA.LOTD),mat.lot);lot.rotation.x=-Math.PI/2;lot.position.y=0.01;lot.receiveShadow=true;scene.add(lot);
+const sw=M(0xBDB6A6);[[[0,0],[11,0]],[[14,0],[25,0]],[[25,0],[25,DATA.LOTD]],[[25,DATA.LOTD],[0,DATA.LOTD]],[[0,DATA.LOTD],[0,0]]].forEach(([p,q])=>seg(p,q,0,0.6,0.3,sw));
+const sb=(x0,x1,y0,y1,z0,z1,m)=>{const [a,b]=W(x0,z0),[c,d]=W(x1,z1);return box(a,c,y0,y1,b,d,m,scene);};
+const pk=new THREE.Mesh(new THREE.PlaneGeometry(5.4,6),mat.pavers);pk.rotation.x=-Math.PI/2;{const [x,z]=W(19.9,3);pk.position.set(x,0.02,z);}pk.receiveShadow=true;scene.add(pk);
+sb(17.65,19.45,0.2,1.35,1.0,5.4,mat.car);sb(20.35,22.15,0.2,1.35,1.0,5.4,mat.car);sb(22.8,24.6,0,1.3,0.4,2.0,mat.render);
+for(let i=0;i<6;i++){const t=i/5,x=12.0+(DATA.fd[0]-12.0)*t,y=0.6+(DATA.fd[1]-0.6)*t;sb(x-.45,x+.45,0,.06,y-.3,y+.3,stoneTex(1,1,i+20));}
+{const ci=new THREE.Mesh(new THREE.CylinderGeometry(1.1,1.1,.12,28),M(0x9DA3A0));const [x,z]=W(22.9,9.2);ci.position.set(x,.06,z);scene.add(ci);}
+sb(11.3,12.7,0,.15,31.0,32.4,M(0xB9B4A8));
+{const rr=new THREE.Mesh(new THREE.TorusGeometry(.75,.18,8,24),stoneTex(1,1,8));rr.rotation.x=-Math.PI/2;const [x,z]=W(14.5,28.5);rr.position.set(x,.18,z);scene.add(rr);}
+{const ws=new THREE.Shape();[[3,33],[6,31.5],[9.5,32],[10,34],[7.5,37.2],[3.5,36]].forEach((p,i)=>{const [x,z]=W(p[0],p[1]);i?ws.lineTo(x,z):ws.moveTo(x,z);});
+ const wm=new THREE.Mesh(new THREE.ShapeGeometry(ws),mat.water);wm.rotation.x=Math.PI/2;wm.position.y=0.03;scene.add(wm);
+ for(let i=0;i<60;i++){const x=3.6+((i*37)%60)/10,y=32.2+((i*53)%45)/10;if(x>9.4)continue;const [rx,rz]=W(x,y);const rd=new THREE.Mesh(new THREE.CylinderGeometry(.03,.04,0.9+(i%4)*.2,5),mat.reed);rd.position.set(rx,.5,rz);scene.add(rd);}}
+function tree(x,y,s,m){const [px,pz]=W(x,y);const t=new THREE.Mesh(new THREE.CylinderGeometry(.12*s,.18*s,2.2*s,8),mat.bark);t.position.set(px,1.1*s,pz);t.castShadow=true;scene.add(t);
+  const c=new THREE.Mesh(new THREE.IcosahedronGeometry(1.6*s,1),m||mat.leaf);c.position.set(px,2.9*s,pz);c.castShadow=true;scene.add(c);}
+tree(6,2.8,1.25);tree(17.5,33.5,1.0);tree(22,30.5,0.9);
+// windbreak: evergreen cedars due west of the terraces (outside the winter-sun sector)
+DATA.CYP.forEach(([x,y])=>{const [px,pz]=W(x,y);const tr=new THREE.Mesh(new THREE.CylinderGeometry(.08,.12,1.0,6),mat.bark);tr.position.set(px,.5,pz);scene.add(tr);
+  const c=new THREE.Mesh(new THREE.ConeGeometry(.7,4.6,10),M(0x3F5A35));c.position.set(px,3.2,pz);c.castShadow=true;scene.add(c);});
+// deciduous trees: leaves in summer (shade), bare in winter (sun passes) - follows the date of the sun study
+window.DECID=[];
+DATA.DEC.forEach(([x,y,s])=>{const [px,pz]=W(x,y);const t=new THREE.Mesh(new THREE.CylinderGeometry(.13*s,.2*s,3.0*s,8),mat.bark);t.position.set(px,1.5*s,pz);t.castShadow=true;scene.add(t);
+  [0,2.1,4.2].forEach(a=>{const b=new THREE.Mesh(new THREE.CylinderGeometry(.04*s,.07*s,1.9*s,6),mat.bark);b.position.set(px+Math.cos(a)*.55*s,3.4*s,pz+Math.sin(a)*.55*s);b.rotation.set(Math.sin(a)*.6,0,-Math.cos(a)*.6);scene.add(b);});
+  const c=new THREE.Mesh(new THREE.IcosahedronGeometry(2.6*s,1),M(0x8FAE5E,{roughness:.9}));c.position.set(px,4.4*s,pz);c.castShadow=true;scene.add(c);window.DECID.push(c);});
+// low rosemary hedge on the south-west corner of the terrace (wind at seated height, almost no shadow)
+DATA.HEDGE.forEach(([x,y])=>{const [px,pz]=W(x,y);const h=new THREE.Mesh(new THREE.IcosahedronGeometry(.42,0),M(0x7C8F6A));h.scale.set(1,1.35,1);h.position.set(px,.6,pz);h.castShadow=true;scene.add(h);});
+setSun();
+[4.5,7.5,10.5,13.5,16.5,19.5].forEach((x,i)=>tree(x,39.6+(i%2)*0.6,0.65,mat.leaf2));
+[-14,-10,38,42].forEach((x,i)=>tree(x,(i*13)%40,1.4));
+{const ar=new THREE.Shape();ar.moveTo(0,1.6);ar.lineTo(.6,0);ar.lineTo(0,.4);ar.lineTo(-.6,0);ar.lineTo(0,1.6);
+ const na=new THREE.Mesh(new THREE.ShapeGeometry(ar),M(0x5D5A1E));na.rotation.x=-Math.PI/2;na.position.set(-16,.03,-22);na.scale.set(2,2,2);scene.add(na);}
+// dog park fence (site coordinates)
+{const mesh=M(0x3A3B37,{transparent:true,opacity:.35});
+ DATA.DOGS.forEach(([p,q])=>{seg(p,q,0.05,1.2,0.02,mesh);seg(p,q,1.15,1.22,0.06,mat.wood);
+   const L=Math.hypot(q[0]-p[0],q[1]-p[1]),n=Math.max(1,Math.ceil(L/2.5));
+   for(let k=0;k<=n;k++){const x=p[0]+(q[0]-p[0])*k/n,y=p[1]+(q[1]-p[1])*k/n;sb(x-.05,x+.05,0,1.3,y-.05,y+.05,mat.wood);}});
+ DATA.GATES.forEach(([p,q])=>seg(p,q,0.05,1.2,0.05,M(0x7A5F3E)));}
+// orient the lot: true north is ~11.7 deg left of the lot axis
+{const G=new THREE.Group();scene.children.slice().forEach(c=>{if(!c.isLight&&!c.userData.keepWorld)G.add(c);});G.rotation.y=DATA.NROT*Math.PI/180;scene.add(G);window.LOTG=G;}
+{const inp=document.getElementById('lotRot');inp.value=DATA.NROT;inp.addEventListener('input',()=>{const v=parseFloat(inp.value);if(!isNaN(v))window.LOTG.rotation.y=v*Math.PI/180;});}
+// camera
+const hx=DATA.HX-12.5,hz=DATA.HY-DATA.LOTD/2;
+const views={garden:{th:0.35,ph:1.15,r:36,t:[0,2,-3.5]},street:{th:Math.PI-0.3,ph:1.2,r:38,t:[0,2,-3.5]},top:{th:0.0001,ph:0.12,r:58,t:[0,0,0]},
+  inside:{th:Math.PI/2,ph:1.53,r:4.4,t:[hx+2.3,FF+1.4,hz+8.1]}};
+{const f=DATA.NROT*Math.PI/180,c=Math.cos(f),s=Math.sin(f);Object.values(views).forEach(v=>{const [x,y,z]=v.t;v.t=[x*c+z*s,y,-x*s+z*c];v.th+=f;});}
+const cur={th:views.garden.th,ph:views.garden.ph,r:views.garden.r,tx:views.garden.t[0],ty:views.garden.t[1],tz:views.garden.t[2]},goal=Object.assign({},cur);
+function setGoal(v){goal.th=v.th;goal.ph=v.ph;goal.r=v.r;[goal.tx,goal.ty,goal.tz]=v.t;}
+function place(){camera.position.set(cur.tx+cur.r*Math.sin(cur.ph)*Math.sin(cur.th),cur.ty+cur.r*Math.cos(cur.ph),cur.tz+cur.r*Math.sin(cur.ph)*Math.cos(cur.th));camera.lookAt(cur.tx,cur.ty,cur.tz);}
+const btns=[...document.querySelectorAll('[data-view]')];
+btns.forEach(b=>b.addEventListener('click',()=>{setGoal(views[b.dataset.view]);let d=goal.th-cur.th;while(d>Math.PI)d-=2*Math.PI;while(d<-Math.PI)d+=2*Math.PI;goal.th=cur.th+d;
+  if(reduce)Object.assign(cur,goal);btns.forEach(x=>x.setAttribute('aria-pressed',x===b));}));
+const roofBtn=document.getElementById('roofBtn');
+// "Remove roof" only hides it from view: it keeps casting its shadow, so the sun study stays truthful inside the house
+const ghost=new THREE.MeshBasicMaterial({colorWrite:false,depthWrite:false});let roofOff=false;
+roofG.traverse(o=>{if(o.isMesh)o.userData.mat=o.material;});
+roofBtn.addEventListener('click',()=>{roofOff=!roofOff;roofG.traverse(o=>{if(o.isMesh){o.material=roofOff?ghost:o.userData.mat;o.castShadow=true;}});
+  roofBtn.setAttribute('aria-pressed',roofOff);roofBtn.textContent=roofOff?'Poner lámina del techo':'Quitar lámina (sombra real)';});
+let drag=null;const cv=renderer.domElement;
+cv.addEventListener('pointerdown',e=>{drag={x:e.clientX,y:e.clientY};cv.setPointerCapture(e.pointerId);});
+cv.addEventListener('pointermove',e=>{if(!drag)return;const dx=e.clientX-drag.x,dy=e.clientY-drag.y;drag={x:e.clientX,y:e.clientY};
+  goal.th-=dx*0.008;goal.ph=Math.min(1.6,Math.max(0.1,goal.ph-dy*0.006));cur.th=goal.th;cur.ph=goal.ph;btns.forEach(x=>x.setAttribute('aria-pressed',false));});
+cv.addEventListener('pointerup',()=>drag=null);
+cv.addEventListener('wheel',e=>{e.preventDefault();goal.r=Math.min(100,Math.max(2,goal.r*(1+e.deltaY*0.001)));},{passive:false});
+function resize(){const w=host.clientWidth,h=host.clientHeight;renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();}
+new ResizeObserver(resize).observe(host);resize();
+(function loop(){['th','ph','r','tx','ty','tz'].forEach(k=>cur[k]+=(goal[k]-cur[k])*0.08);place();renderer.render(scene,camera);requestAnimationFrame(loop);})();
+})();
+</script>
+</body>
+</html>
